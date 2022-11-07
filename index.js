@@ -1,8 +1,7 @@
 'use strict';
 
 module.exports = {
-  client: require('./lib/client'),
-  patchGenerator: require('./lib/patch-generator'),
-  restliUtils: require('./lib/restli-utils')
+  LinkedInApiClient: require('./lib/client'),
+  utils: require('./lib/utils')
 };
 
