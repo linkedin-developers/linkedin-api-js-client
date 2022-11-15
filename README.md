@@ -5,5 +5,5 @@ This library is a node client for making requests to LinkedIn's APIs, built on t
 ## Installation
 
 ```sh
-npm install linkedin-api-node-client
+npm install linkedin-api-js-client
 ```

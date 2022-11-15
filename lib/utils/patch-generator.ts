@@ -201,20 +201,18 @@ function generateDiff(original, modified) {
   return diff;
 }
 
-module.exports = {
-  /**
-   * Generates a pegasus/restli diff for two Objects.
-   * For more information about the format, read:
-   * https://github.com/linkedin/rest.li/wiki/Rest.li-Protocol#partial-update
-   *
-   * @method getDiff
-   * @param {Object} original
-   * @param {Object} modified
-   * @return {Object}
-   */
-  getPatchObject(original, modified) {
-    return {
-      [PATCH]: generateDiff(original, modified)
-    };
-  }
-};
+/**
+ * Generates a pegasus/restli diff for two Objects.
+ * For more information about the format, read:
+ * https://github.com/linkedin/rest.li/wiki/Rest.li-Protocol#partial-update
+ *
+ * @method getDiff
+ * @param {Object} original
+ * @param {Object} modified
+ * @return {Object}
+ */
+export function getPatchObject(original, modified) {
+  return {
+    [PATCH]: generateDiff(original, modified)
+  };
+}

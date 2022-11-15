@@ -1,4 +1,4 @@
-module.exports = {
+export const constants = {
   OAUTH_BASE_URL: 'https://www.linkedin.com/oauth/v2',
   NON_VERSIONED_BASE_URL: 'https://api.linkedin.com/v2',
   VERSIONED_BASE_URL: 'https://api.linkedin.com/rest',
@@ -42,4 +42,4 @@ module.exports = {
     BATCH_FINDER: 'BATCH_FINDER',
     ACTION: 'ACTION'
   }
-}
+};
