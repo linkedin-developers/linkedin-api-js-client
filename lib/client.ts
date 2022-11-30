@@ -3,7 +3,7 @@ import { constants } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
-import { isQueryTunnelingRequired } from './utils/query-tunneling';
+import { maybeApplyQueryTunnelingToGetRequest } from './utils/query-tunneling';
 import qs from 'qs';
 import _ from 'lodash';
 
@@ -372,7 +372,7 @@ export class LinkedInApiClient {
    */
   static async get({
     resource,
-    id,
+    id = null,
     queryParams,
     versionString,
     accessToken,
@@ -381,18 +381,17 @@ export class LinkedInApiClient {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     // Simple resources do not have id
-    let url = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
-    url += `?${encodedQueryParamString}`;
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
 
-    const requestConfig = _.merge({
-      method: 'GET',
-      url,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.GET,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    const requestConfig = maybeApplyQueryTunnelingToGetRequest({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: constants.RESTLI_METHODS.GET,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   }
 
@@ -426,32 +425,14 @@ export class LinkedInApiClient {
       ...queryParams
     });
 
-    let requestConfig;
-    if (isQueryTunnelingRequired(encodedQueryParamString)) {
-      requestConfig = _.merge({
-        method: constants.HTTP_METHODS.POST,
-        url: `${baseUrl}${resource}`,
-        data: encodedQueryParamString,
-        headers: getRestliRequestHeaders({
-          contentType: constants.CONTENT_TYPE.URL_ENCODED,
-          httpMethodOverride: constants.HTTP_METHODS.GET,
-          restliMethodType: constants.RESTLI_METHODS.BATCH_GET,
-          accessToken,
-          versionString
-        })
-      }, additionalConfig);
-    }
-    else {
-      requestConfig = _.merge({
-        method: constants.HTTP_METHODS.GET,
-        url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-        headers: getRestliRequestHeaders({
-          restliMethodType: constants.RESTLI_METHODS.BATCH_GET,
-          accessToken,
-          versionString
-        })
-      }, additionalConfig);
-    }
+    const requestConfig = maybeApplyQueryTunnelingToGetRequest({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.BATCH_GET,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
 
     return await axios.request(requestConfig);
   }
