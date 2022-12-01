@@ -22,7 +22,7 @@ export function getRestliRequestHeaders({
     headers[constants.HEADERS.LINKEDIN_VERSION] = versionString;
   }
   if (httpMethodOverride) {
-    headers[constants.HEADERS.HTTP_METHOD_OVERRIDE] = httpMethodOverride;
+    headers[constants.HEADERS.HTTP_METHOD_OVERRIDE] = httpMethodOverride.toUpperCase();
   }
   return headers;
 };

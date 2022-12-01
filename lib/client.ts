@@ -3,11 +3,9 @@ import { constants } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
-import { maybeApplyQueryTunnelingToGetRequest } from './utils/query-tunneling';
+import { maybeApplyQueryTunnelingToRequestsWithoutBody, maybeApplyQueryTunnelingToRequestsWithBody } from './utils/query-tunneling';
 import _ from 'lodash';
 
-// TODO: Add query tunneling support to finder/batch_finder/get
-// TODO: Add query tunneling support for update, batch_update, partial update, batch partial update
 // TODO: Figure out format when create/batch_create returns the actual entity
 // TODO: Handle cases where reduced-encode is required
 // TODO: Add tests
@@ -20,9 +18,11 @@ import _ from 'lodash';
 // TODO: get look at social actions for sub-resources
 // TODO: update/delete methods on simple resource don't need id
 // TODO: Support old linkedin header for created id
-// TODO: Separate out auth-related functionality from client
 // TODO: Add examples folder
 // TODO: Create a type declaration file
+// TODO: Add eslint
+// TODO: Add prettier
+// TODO: Add README
 
 /**
  * Type Definitions
@@ -277,7 +277,8 @@ export interface LIActionResponse extends AxiosResponse {
 
 export const linkedInApiClient = {
   /**
-   * Makes a Rest.li GET request to fetch the specified entity on a resource.
+   * Makes a Rest.li GET request to fetch the specified entity on a resource. This method
+   * will perform query tunneling if necessary.
    *
    * @example
    * ```ts
@@ -309,7 +310,7 @@ export const linkedInApiClient = {
     // Simple resources do not have id
     const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
 
-    const requestConfig = maybeApplyQueryTunnelingToGetRequest({
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath,
       originalRestliMethod: constants.RESTLI_METHODS.GET,
@@ -351,7 +352,7 @@ export const linkedInApiClient = {
       ...queryParams
     });
 
-    const requestConfig = maybeApplyQueryTunnelingToGetRequest({
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
       originalRestliMethod: constants.RESTLI_METHODS.BATCH_GET,
@@ -364,7 +365,8 @@ export const linkedInApiClient = {
   },
 
   /**
-   * Makes a Rest.li GET_ALL request to fetch all entities on a resource.
+   * Makes a Rest.li GET_ALL request to fetch all entities on a resource. This method
+   * will perform query tunneling if necessary.
    *
    * @example
    * ```ts
@@ -389,17 +391,16 @@ export const linkedInApiClient = {
   } : LIGetAllRequestOptions) : Promise<LIGetAllResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
-    const requestConfig = _.merge({
-      method: 'GET',
-      url: encodedQueryParamString ?
-        `${baseUrl}${resource}?${encodedQueryParamString}` :
-        `${baseUrl}${resource}`,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.GET_ALL,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.GET_ALL,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
@@ -514,6 +515,8 @@ export const linkedInApiClient = {
    * update of only top-level fields on an entity. In these cases it is better to specify `patchSetObject`
    * directly.
    *
+   * This method will perform query tunneling if necessary.
+   *
    * @example
    * ```ts
    * client.partialUpdate({
@@ -532,15 +535,18 @@ export const linkedInApiClient = {
    */
   async partialUpdate({
     resource,
-    id,
+    id = null,
     patchSetObject,
     originalEntity,
     modifiedEntity,
+    queryParams,
     versionString = null,
     accessToken,
     additionalConfig = {}
   } : LIPartialUpdateRequestOptions) : Promise<LIPartialUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const encodedQueryParamString = paramEncode(queryParams);
 
     let patchData;
     if (patchSetObject) {
@@ -557,22 +563,22 @@ export const linkedInApiClient = {
       throw new Error('Either patchSetObject or originalEntity and modifiedEntity properties must be present');
     }
 
-    const requestConfig = _.merge({
-      method: 'POST',
-      url: `${baseUrl}${resource}/${encode(id)}`,
-      data: getPatchObject(originalEntity, modifiedEntity),
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.PARTIAL_UPDATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: constants.RESTLI_METHODS.PARTIAL_UPDATE,
+      originalJSONRequestBody: patchData,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
   /**
    * Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at
-   * once.
+   * once. This method will perform query tunneling if necessary.
    *
    * @example
    * ```ts
@@ -642,24 +648,25 @@ export const linkedInApiClient = {
       }, {});
     }
 
-    const requestConfig = _.merge({
-      method: 'POST',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-      data: {
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.BATCH_PARTIAL_UPDATE,
+      originalJSONRequestBody: {
         entities
       },
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.BATCH_PARTIAL_UPDATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
 
   /**
-   * Makes a Rest.li UPDATE request to update an entity.
+   * Makes a Rest.li UPDATE request to update an entity. This method will perform query
+   * tunneling if necessary.
    *
    * @example
    * ```ts
@@ -685,26 +692,31 @@ export const linkedInApiClient = {
     resource,
     id = null,
     data,
+    queryParams,
     versionString = null,
     accessToken,
     additionalConfig = {}
   } : LIUpdateRequestOptions) : Promise<LIUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const requestConfig = _.merge({
-      method: 'PUT',
-      url: `${baseUrl}${resource}/${encode(id)}`,
-      data,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.UPDATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const encodedQueryParamString = paramEncode(queryParams);
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: constants.RESTLI_METHODS.UPDATE,
+      originalJSONRequestBody: data,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
   /**
    * Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
+   * This method will perform query tunneling if necessary.
    *
    * @example
    * ```ts
@@ -743,18 +755,19 @@ export const linkedInApiClient = {
       entitiesObject[encode(currId)] = entitiesArray[index];
       return entitiesObject;
     }, {});
-    const requestConfig = _.merge({
-      method: 'PUT',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-      data: {
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.BATCH_UPDATE,
+      originalJSONRequestBody: {
         entities: entitiesObject
       },
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.BATCH_UPDATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
@@ -770,16 +783,18 @@ export const linkedInApiClient = {
     additionalConfig = {}
   } : LIDeleteRequestOptions) : Promise<LIDeleteResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
-    const requestConfig = _.merge({
-      method: 'DELETE',
-      url: `${baseUrl}${resource}/${encode(id)}`,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.DELETE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: constants.RESTLI_METHODS.DELETE,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
@@ -799,20 +814,22 @@ export const linkedInApiClient = {
       ids,
       ...queryParams
     });
-    const requestConfig = _.merge({
-      method: 'DELETE',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.BATCH_DELETE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.BATCH_DELETE,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
     return await axios.request(requestConfig);
   },
 
   /**
-   * Makes a Rest.li FINDER request to find entities by some specified criteria.
+   * Makes a Rest.li FINDER request to find entities by some specified criteria. This method
+   * will perform query tunneling if necessary.
    */
   async finder({
     resource,
@@ -827,21 +844,22 @@ export const linkedInApiClient = {
       q: finderName,
       ...queryParams
     });
-    const requestConfig = _.merge({
-      method: 'GET',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.FINDER,
-        accessToken,
-        versionString
-      }), additionalConfig
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.FINDER,
+      accessToken,
+      versionString,
+      additionalConfig
     });
+
     return await axios.request(requestConfig);
   },
 
   /**
    * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
-   * criteria.
+   * criteria. This method will perform query tunneling if necessary.
    */
   async batchFinder({
     resource,
@@ -856,15 +874,16 @@ export const linkedInApiClient = {
       bq: batchFinderName,
       ...queryParams
     });
-    const requestConfig = _.merge({
-      method: 'GET',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
-      headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.BATCH_FINDER,
-        accessToken,
-        versionString
-      }), additionalConfig
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath: `${baseUrl}${resource}`,
+      originalRestliMethod: constants.RESTLI_METHODS.BATCH_FINDER,
+      accessToken,
+      versionString,
+      additionalConfig
     });
+
     return await axios.request(requestConfig);
   },
 
