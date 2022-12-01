@@ -1,4 +1,4 @@
-import { LinkedInApiClient } from './../lib/client';
+import { linkedInApiClient } from './../lib/client';
 import nock from 'nock';
 
 const TEST_BEARER_TOKEN = 'ABC123';
@@ -114,13 +114,13 @@ describe('LinkedInApiClient', () => {
 
     if (expectedResponse.isError) {
       try {
-        await LinkedInApiClient.get(requestOptions);
+        await linkedInApiClient.get(requestOptions);
       } catch (error) {
         expect(error.response.status).toBe(expectedResponse.status);
         expect(error.response.data).toStrictEqual(expectedResponse.data);
       }
     } else {
-      const response = await LinkedInApiClient.get(requestOptions);
+      const response = await linkedInApiClient.get(requestOptions);
       expect(response);
       expect(response.data).toStrictEqual(expectedResponse.data);
       expect(response.status).toBe(expectedResponse.status);

@@ -4,7 +4,6 @@ import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
 import { maybeApplyQueryTunnelingToGetRequest } from './utils/query-tunneling';
-import qs from 'qs';
 import _ from 'lodash';
 
 // TODO: Add query tunneling support to finder/batch_finder/get
@@ -276,80 +275,7 @@ export interface LIActionResponse extends AxiosResponse {
 }
 
 
-export class LinkedInApiClient {
-  clientId: string;
-  clientSecret: string;
-  redirectUrl: string;
-
-  constructor({ clientId = null, clientSecret = null, redirectUrl = null } = {}) {
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.redirectUrl = redirectUrl;
-  }
-
-  async getTwoLeggedAccessToken() {
-    return await axios.request({
-      method: 'POST',
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
-      data: qs.stringify({
-        grant_type: 'client_credentials',
-        client_id: this.clientId,
-        client_secret: this.clientSecret
-      }),
-      headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
-      }
-    });
-  }
-
-  async exchangeAuthCodeForAccessToken(code: string) {
-    return await axios.request({
-      method: 'POST',
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
-      data: {
-        grant_type: 'authorization_code',
-        code,
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        redirect_uri: this.redirectUrl
-      },
-      headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
-      }
-    });
-  }
-
-  async exchangeRefreshTokenForAccessToken(refreshToken) {
-    return await axios.request({
-      method: 'POST',
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
-      data: {
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: this.clientId,
-        client_secret: this.clientSecret
-      },
-      headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
-      }
-    });
-  }
-
-  async introspectAccessToken(accessToken) {
-    return await axios.request({
-      method: 'POST',
-      url: `${constants.OAUTH_BASE_URL}/introspectToken`,
-      data: {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        token: accessToken
-      },
-      headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
-      }
-    });
-  }
-
+export const linkedInApiClient = {
   /**
    * Makes a Rest.li GET request to fetch the specified entity on a resource.
    *
@@ -370,7 +296,7 @@ export class LinkedInApiClient {
    *
    * @returns a Promise that resolves to the response object containing the entity.
    */
-  static async get({
+  async get({
     resource,
     id = null,
     queryParams,
@@ -393,7 +319,7 @@ export class LinkedInApiClient {
     });
 
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This method
@@ -411,7 +337,7 @@ export class LinkedInApiClient {
    * })
    * ```
    */
-  static async batchGet({
+  async batchGet({
     resource,
     ids,
     queryParams,
@@ -435,7 +361,7 @@ export class LinkedInApiClient {
     });
 
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li GET_ALL request to fetch all entities on a resource.
@@ -454,7 +380,7 @@ export class LinkedInApiClient {
    * })
    * ```
    */
-  static async getAll({
+  async getAll({
     resource,
     queryParams,
     versionString,
@@ -475,7 +401,7 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li CREATE request to create a new entity on the resource.
@@ -497,7 +423,7 @@ export class LinkedInApiClient {
    * })
    * ```
    */
-  static async create({
+  async create({
     resource,
     data,
     queryParams,
@@ -521,7 +447,7 @@ export class LinkedInApiClient {
     }, additionalConfig);
 
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_CREATE request to create multiple entities in
@@ -550,7 +476,7 @@ export class LinkedInApiClient {
    * });
    * ```
    */
-  static async batchCreate({
+  async batchCreate({
     resource,
     entities,
     queryParams,
@@ -575,7 +501,7 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li PARTIAL_UPDATE request to update part of an entity. One can either
@@ -604,7 +530,7 @@ export class LinkedInApiClient {
    * });
    * ```
    */
-  static async partialUpdate({
+  async partialUpdate({
     resource,
     id,
     patchSetObject,
@@ -642,7 +568,7 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at
@@ -669,7 +595,7 @@ export class LinkedInApiClient {
    * })
    * ```
    */
-  static async batchPartialUpdate({
+  async batchPartialUpdate({
     resource,
     ids,
     originalEntities,
@@ -729,7 +655,7 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
 
   /**
@@ -755,7 +681,7 @@ export class LinkedInApiClient {
    * });
    * ```
    */
-  static async update({
+  async update({
     resource,
     id = null,
     data,
@@ -775,7 +701,7 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
@@ -798,7 +724,7 @@ export class LinkedInApiClient {
    * })
    * ```
    */
-  static async batchUpdate({
+  async batchUpdate({
     resource,
     ids,
     entitiesArray,
@@ -830,12 +756,12 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li DELETE request to delete an entity
    */
-  static async delete({
+  async delete({
     resource,
     id = null,
     queryParams = {},
@@ -855,12 +781,12 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
    */
-  static async batchDelete({
+  async batchDelete({
     resource,
     ids,
     queryParams = {},
@@ -883,12 +809,12 @@ export class LinkedInApiClient {
       })
     }, additionalConfig);
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li FINDER request to find entities by some specified criteria.
    */
-  static async finder({
+  async finder({
     resource,
     finderName,
     queryParams = {},
@@ -911,13 +837,13 @@ export class LinkedInApiClient {
       }), additionalConfig
     });
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
    * criteria.
    */
-  static async batchFinder({
+  async batchFinder({
     resource,
     batchFinderName,
     queryParams = {},
@@ -940,12 +866,12 @@ export class LinkedInApiClient {
       }), additionalConfig
     });
     return await axios.request(requestConfig);
-  }
+  },
 
   /**
    * Makes a Rest.li ACTION request to perform an action on a specified resource
    */
-  static async action({
+  async action({
     resource,
     actionName,
     data = null,
