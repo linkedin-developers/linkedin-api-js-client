@@ -1,4 +1,4 @@
-import { apiClient } from './../lib/client';
+import { ApiClient } from './../lib/client';
 import { constants } from './../lib/utils/constants';
 import nock from 'nock';
 import _ from 'lodash';
@@ -446,6 +446,7 @@ describe('LinkedInApiClient', () => {
 
 
     // Make request using LinkedIn API client
+    const apiClient = new ApiClient();
     const apiClientMethod = _.camelCase(inputRequestRestliMethod);
     if (inputResponse.isError) {
       // If expecting error response

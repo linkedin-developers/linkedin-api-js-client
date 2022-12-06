@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from 'axios';
 import { constants } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode, getCreatedEntityId } from './utils/restli-utils';
@@ -279,7 +279,13 @@ export interface LIActionResponse extends AxiosResponse {
 }
 
 
-export const apiClient = {
+export class ApiClient {
+  axiosInstance: AxiosInstance;
+
+  constructor(config: CreateAxiosDefaults = {}) {
+    this.axiosInstance = axios.create(config);
+  }
+
   /**
    * Makes a Rest.li GET request to fetch the specified entity on a resource. This method
    * will perform query tunneling if necessary.
@@ -323,8 +329,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This method
@@ -365,8 +371,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li GET_ALL request to fetch all entities on a resource. This method
@@ -405,8 +411,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li CREATE request to create a new entity on the resource.
@@ -451,12 +457,12 @@ export const apiClient = {
       })
     }, additionalConfig);
 
-    const originalResponse = await axios.request(requestConfig);
+    const originalResponse = await this.axiosInstance.request(requestConfig);
     return {
       ...originalResponse,
       createdEntityId: getCreatedEntityId(originalResponse)
     };
-  },
+  }
 
   /**
    * Makes a Rest.li BATCH_CREATE request to create multiple entities in
@@ -509,8 +515,8 @@ export const apiClient = {
         versionString
       })
     }, additionalConfig);
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li PARTIAL_UPDATE request to update part of an entity. One can either
@@ -581,8 +587,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at
@@ -668,8 +674,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
 
   /**
@@ -719,8 +725,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
@@ -776,8 +782,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li DELETE request to delete an entity
@@ -803,8 +809,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
@@ -832,8 +838,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li FINDER request to find entities by some specified criteria. This method
@@ -862,8 +868,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
@@ -892,8 +898,8 @@ export const apiClient = {
       additionalConfig
     });
 
-    return await axios.request(requestConfig);
-  },
+    return await this.axiosInstance.request(requestConfig);
+  }
 
   /**
    * Makes a Rest.li ACTION request to perform an action on a specified resource
@@ -922,6 +928,6 @@ export const apiClient = {
         versionString
       }), additionalConfig
     });
-    return await axios.request(requestConfig);
+    return await this.axiosInstance.request(requestConfig);
   }
 }

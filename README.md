@@ -8,7 +8,7 @@ This library is intended to be used within a NodeJS server application. API requ
 
 ### Features
 
-- Generic support for all (14) Rest.li methods used in LinkedIn APIs
+- Generic support for all Rest.li methods used in LinkedIn APIs
 - Supports Rest.li protocol version 2.0.0
 - Provide typescript interfaces for request options/response payloads
 - Built-in parameter encoding
@@ -17,6 +17,8 @@ This library is intended to be used within a NodeJS server application. API requ
 - Supports versioned APIs
 - Automatic query tunneling of requests
 - 2-legged and 3-legged OAuth2 support
+
+
 
 ## Installation
 
@@ -44,9 +46,11 @@ yarn add linkedin-api-js-client
 From the [API docs](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin?context=linkedin%2Fconsumer%2Fcontext) for the Sign In with LinkedIn API product, we see this is a simple get request to fetch the current user's profile.
 
 ```js
-const { apiClient } = require('linkedin-api-js-client');
+const { ApiClient } = require('linkedin-api-js-client');
 
 ...
+const apiClient = new ApiClient();
+
 apiClient.get({
   resource: '/me',
   accessToken: <THREE_LEGGED_ACCESS_TOKEN>
@@ -62,7 +66,7 @@ apiClient.get({
 
 ## API Client
 
-The API client has methods for all the Rest.li methods which are used by LinkedIn APIs. Rest.li defines a standard set of methods that can operate on a resource, each of which maps to an HTTP method. Depending on the resource, some Rest.li methods are not applicable or not implemented. Read the API docs to determine what Rest.li method is applicable and the applicable request parameters.
+The API client has instance methods for all the Rest.li methods which are used by LinkedIn APIs. Rest.li defines a standard set of methods that can operate on a resource, each of which maps to an HTTP method. Depending on the resource, some Rest.li methods are not applicable or not implemented. Read the API docs to determine what Rest.li method is applicable and the applicable request parameters.
 
 - [GET](#apiclientgetparams)
 - [BATCH_GET](#apiclientbatchgetparams)
@@ -79,7 +83,27 @@ The API client has methods for all the Rest.li methods which are used by LinkedI
 - [BATCH_DELETE](#apiclientbatchdeleteparams)
 - [ACTION](#apiclientactionparams)
 
-### Base Request Options
+### Constructor
+
+An instance of the API client must be created before using.
+
+```
+const apiClient = new ApiClient(config);
+```
+
+| Parameter | Type | Required? | Description |
+|---|---|---|---|
+| config | Object : [AxiosRequestConfig](https://axios-http.com/docs/req_config) | No | An initial, optional config that used to configure the axios instance (e.g. default timeout). |
+
+### Properties
+
+| Property | Description |
+|---|---|
+| axiosInstance | The axios instance used for making http requests. This is exposed to allow for additional configuration (e.g. adding custom request/response interceptors). |
+
+### Methods
+
+#### Base Request Options
 
 All methods of the API client require passing in a request options object, all of which extend the following BaseRequestOptions object:
 
@@ -88,13 +112,14 @@ All methods of the API client require passing in a request options object, all o
 | BaseRequestOptions.resource | String | Yes | The API resource name, which should begin with a forward slash (e.g. "/adAccounts") |
 | BaseRequestOptions.queryParams | Object | No | A map of query parameters. The parameter keys and values will be correctly encoded by this method, so these should not be encoded. |
 | BaseRequestOptions.accessToken | String | Yes | The access token that should provide the application access to the specified API |
-| BaseRequestOptions.versionString | String | No | An optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL
+| BaseRequestOptions.versionString | String | No | An optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL |
+| BaseRequestOptions.additionalConfig | Object : [AxiosRequestConfig](https://axios-http.com/docs/req_config) | No | An optional Axios request config object that will be merged into the request config. This will override any properties the client method sets and any properties passed in during the ApiClient instantiation, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the `queryParams` proeprty for proper Rest.li encoding. |
 
-### Base Response Object
+#### Base Response Object
 
 All methods of the API client return a Promise that resolves to a response object that extends [AxiosResponse](https://axios-http.com/docs/res_schema). This client provides more detailed interfaces of the specific response data payload that is useful for static type-checking and IDE auto-completion.
 
-### `apiClient.get(params)`
+#### `apiClient.get(params)`
 
 Makes a Rest.li GET request to fetch the specified entity on a resource. This method will perform query tunneling if necessary.
 
@@ -127,7 +152,7 @@ client.get({
 });
 ```
 
-### `apiClient.batchGet(params)`
+#### `apiClient.batchGet(params)`
 
 Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This method will perform query tunneling if necessary.
 
@@ -157,7 +182,7 @@ client.batchGet({
 });
 ```
 
-### `apiClient.getAll(params)`
+#### `apiClient.getAll(params)`
 
 Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 
@@ -191,7 +216,7 @@ client.getAll({
 });
 ```
 
-### `apiClient.finder(params)`
+#### `apiClient.finder(params)`
 
 Makes a Rest.li FINDER request to find entities by some specified criteria.
 
@@ -234,7 +259,7 @@ client.finder({
 });
 ```
 
-### `apiClient.batchFinder(params)`
+#### `apiClient.batchFinder(params)`
 
 Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criteria.
 
@@ -283,7 +308,7 @@ client.batchFinder({
 });
 ```
 
-### `apiClient.create(params)`
+#### `apiClient.create(params)`
 
 Makes a Rest.li CREATE request to create a new entity on the resource.
 
@@ -316,7 +341,7 @@ client.create({
 });
 ```
 
-### `apiClient.batchCreate(params)`
+#### `apiClient.batchCreate(params)`
 
 Makes a Rest.li BATCH_CREATE request to create multiple entities in a single call.
 
@@ -360,7 +385,7 @@ client.batchCreate({
 });
 ```
 
-### `apiClient.update(params)`
+#### `apiClient.update(params)`
 
 Makes a Rest.li UPDATE request to update an entity (overwriting the entire entity).
 
@@ -397,7 +422,7 @@ client.update({
 });
 ```
 
-### `apiClient.batchUpdate(params)`
+#### `apiClient.batchUpdate(params)`
 
 Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
 
@@ -433,7 +458,7 @@ client.batchUpdate({
 });
 ```
 
-### `apiClient.partialUpdate(params)`
+#### `apiClient.partialUpdate(params)`
 
 Makes a Rest.li PARTIAL_UPDATE request to update part of an entity. One can either directly pass the patch object to send in the request, or one can pass the full original and modified entity objects, with the method computing the correct patch object.
 
@@ -471,7 +496,7 @@ client.partialUpdate({
 });
 ```
 
-### `apiClient.batchPartialUpdate(params)`
+#### `apiClient.batchPartialUpdate(params)`
 
 Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at once.
 
@@ -514,7 +539,7 @@ client.batchPartialUpdate({
 });
 ```
 
-### `apiClient.delete(params)`
+#### `apiClient.delete(params)`
 
 Makes a Rest.li DELETE request to delete an entity.
 
@@ -543,7 +568,7 @@ client.delete({
 });
 ```
 
-### `apiClient.batchDelete(params)`
+#### `apiClient.batchDelete(params)`
 
 Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 
@@ -574,7 +599,7 @@ client.batchDelete({
 });
 ```
 
-### `apiClient.action(params)`
+#### `apiClient.action(params)`
 
 Makes a Rest.li ACTION request to perform an action on a specified resource.
 
