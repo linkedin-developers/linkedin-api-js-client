@@ -1,4 +1,4 @@
-import { linkedInApiClient } from './../lib/client';
+import { apiClient } from './../lib/client';
 import { constants } from './../lib/utils/constants';
 import nock from 'nock';
 import _ from 'lodash';
@@ -288,14 +288,17 @@ describe('LinkedInApiClient', () => {
       inputRequestRestliMethod: 'CREATE',
       inputRequestOptions: {
         resource: '/testResource',
-        data: {
+        entity: {
           name: 'TestApp1'
         },
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
         data: null,
-        status: 201
+        status: 201,
+        headers: {
+          'x-restli-id': 123
+        }
       },
       expectedRequest: {
         baseUrl: NON_VERSIONED_BASE_URL,
@@ -439,7 +442,7 @@ describe('LinkedInApiClient', () => {
       reqheaders: {...expectedCommonHeaders, ...expectedRequest.additionalHeaders}
     })
       [httpMethod.toLowerCase()](expectedRequest.path, expectedRequest.body)
-      .reply(inputResponse.status, inputResponse.data);
+      .reply(inputResponse.status, inputResponse.data, inputResponse.headers);
 
 
     // Make request using LinkedIn API client
@@ -447,14 +450,14 @@ describe('LinkedInApiClient', () => {
     if (inputResponse.isError) {
       // If expecting error response
       try {
-        await linkedInApiClient[apiClientMethod](inputRequestOptions);
+        await apiClient[apiClientMethod](inputRequestOptions);
       } catch (error) {
         expect(error.response.status).toBe(inputResponse.status);
         expect(error.response.data).toStrictEqual(inputResponse.data);
       }
     } else {
       // If expecting success response
-      const response = await linkedInApiClient[apiClientMethod](inputRequestOptions);
+      const response = await apiClient[apiClientMethod](inputRequestOptions);
       expect(response);
       expect(response.data).toStrictEqual(inputResponse.data);
       expect(response.status).toBe(inputResponse.status);

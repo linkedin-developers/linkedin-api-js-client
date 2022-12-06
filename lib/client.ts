@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { constants } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
-import { encode, paramEncode } from './utils/restli-utils';
+import { encode, paramEncode, getCreatedEntityId } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
 import { maybeApplyQueryTunnelingToRequestsWithoutBody, maybeApplyQueryTunnelingToRequestsWithBody } from './utils/query-tunneling';
 import _ from 'lodash';
@@ -89,7 +89,7 @@ export interface LIGetAllRequestOptions extends LIRestliRequestOptionsBase {}
 
 export interface LICreateRequestOptions extends LIRestliRequestOptionsBase {
   /** A JSON serialized value of the entity to create */
-  data: RestliEntity
+  entity: RestliEntity
 }
 
 export interface LIBatchCreateRequestOptions extends LIRestliRequestOptionsBase {
@@ -123,14 +123,14 @@ export interface LIUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
   id?: RestliEntityId,
   /** The JSON-serialized value of the entity with updated values. */
-  data: RestliEntity
+  entity: RestliEntity
 }
 
 export interface LIBatchUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The list of entity ids to update. This should match with the corresponding entity object in the entities field. */
   ids: RestliEntityId[],
   /** The list of JSON-serialized values of entities with updated values. */
-  entitiesArray: RestliEntity[]
+  entities: RestliEntity[]
 }
 
 export interface LIDeleteRequestOptions extends LIRestliRequestOptionsBase {
@@ -190,7 +190,10 @@ export interface LIGetAllResponse extends AxiosResponse {
   }
 }
 
-export interface LICreateResponse extends AxiosResponse {}
+export interface LICreateResponse extends AxiosResponse {
+  /** The created entity id */
+  createdEntityId: string | number
+}
 
 export interface LIBatchCreateResponse extends AxiosResponse {
   data: {
@@ -210,11 +213,12 @@ export interface LIPartialUpdateResponse extends AxiosResponse {}
 
 export interface LIBatchPartialUpdateResponse extends AxiosResponse {
   data: {
-    errors: Record<EncodedEntityId, any>,
     /** A map of entities and their corresponding response status. */
     results: Record<EncodedEntityId, {
       status: number
-    }>
+    }>,
+    /** A map where the keys are the encoded entity ids that failed to be updated, and the values include the error response. */
+    errors: Record<EncodedEntityId, any>,
   }
 }
 
@@ -246,7 +250,7 @@ export interface LIBatchDeleteResponse extends AxiosResponse {
 
 export interface LIFinderResponse extends AxiosResponse {
   data: {
-    /** An array of entities found based on  */
+    /** An array of entities found based on the search criteria */
     elements: RestliEntity[],
     paging?: PagingObject
   }
@@ -254,7 +258,7 @@ export interface LIFinderResponse extends AxiosResponse {
 
 export interface LIBatchFinderResponse extends AxiosResponse {
   data: {
-    /** An array of finder search results in the same order as the array of search criteria provided to teh batch finder. */
+    /** An array of finder search results in the same order as the array of search criteria provided to the batch finder. */
     elements: Array<{
       /** An array of entities found based on the corresponding search critieria. */
       elements: RestliEntity[],
@@ -275,7 +279,7 @@ export interface LIActionResponse extends AxiosResponse {
 }
 
 
-export const linkedInApiClient = {
+export const apiClient = {
   /**
    * Makes a Rest.li GET request to fetch the specified entity on a resource. This method
    * will perform query tunneling if necessary.
@@ -413,7 +417,7 @@ export const linkedInApiClient = {
    * ...
    * client.create({
    *   resource: '/adAccountsV2',
-   *   data: {
+   *   entity: {
    *     name: 'Test Ad Account',
    *     type: 'BUSINESS',
    *     test: true
@@ -426,7 +430,7 @@ export const linkedInApiClient = {
    */
   async create({
     resource,
-    data,
+    entity,
     queryParams,
     versionString = null,
     accessToken,
@@ -439,7 +443,7 @@ export const linkedInApiClient = {
       url: encodedQueryParamString ?
         `${baseUrl}${resource}?${encodedQueryParamString}` :
         `${baseUrl}${resource}`,
-      data,
+      data: entity,
       headers: getRestliRequestHeaders({
         restliMethodType: constants.RESTLI_METHODS.CREATE,
         accessToken,
@@ -447,7 +451,11 @@ export const linkedInApiClient = {
       })
     }, additionalConfig);
 
-    return await axios.request(requestConfig);
+    const originalResponse = await axios.request(requestConfig);
+    return {
+      ...originalResponse,
+      createdEntityId: getCreatedEntityId(originalResponse)
+    };
   },
 
   /**
@@ -665,8 +673,8 @@ export const linkedInApiClient = {
 
 
   /**
-   * Makes a Rest.li UPDATE request to update an entity. This method will perform query
-   * tunneling if necessary.
+   * Makes a Rest.li UPDATE request to update an entity (overwriting the entire entity).
+   * This method will perform query tunneling if necessary.
    *
    * @example
    * ```ts
@@ -676,7 +684,7 @@ export const linkedInApiClient = {
    *     account: 'urn:li:sponsoredAccount:123',
    *     user: 'urn:li:person:foobar'
    *   },
-   *   data: {
+   *   entity: {
    *     account: 'urn:li:sponsoredAccount:123',
    *     user: 'urn:li:person:foobar',
    *     role: 'VIEWER'
@@ -691,7 +699,7 @@ export const linkedInApiClient = {
   async update({
     resource,
     id = null,
-    data,
+    entity,
     queryParams,
     versionString = null,
     accessToken,
@@ -705,7 +713,7 @@ export const linkedInApiClient = {
       encodedQueryParamString,
       urlPath,
       originalRestliMethod: constants.RESTLI_METHODS.UPDATE,
-      originalJSONRequestBody: data,
+      originalJSONRequestBody: entity,
       accessToken,
       versionString,
       additionalConfig
@@ -739,7 +747,7 @@ export const linkedInApiClient = {
   async batchUpdate({
     resource,
     ids,
-    entitiesArray,
+    entities,
     queryParams,
     versionString = null,
     accessToken,
@@ -752,7 +760,7 @@ export const linkedInApiClient = {
     });
     // This as any[] workaround is due to this issue: https://github.com/microsoft/TypeScript/issues/36390
     const entitiesObject = (ids as any[]).reduce((entitiesObject, currId, index) => {
-      entitiesObject[encode(currId)] = entitiesArray[index];
+      entitiesObject[encode(currId)] = entities[index];
       return entitiesObject;
     }, {});
 
