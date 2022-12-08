@@ -1,4 +1,4 @@
-const constants = require('./constants');
+const { constants } = require('./constants');
 
 export function generateMemberAuthorizationUrl({
   clientId,

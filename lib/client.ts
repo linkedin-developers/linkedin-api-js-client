@@ -6,24 +6,6 @@ import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
 import { maybeApplyQueryTunnelingToRequestsWithoutBody, maybeApplyQueryTunnelingToRequestsWithBody } from './utils/query-tunneling';
 import _ from 'lodash';
 
-// TODO: Figure out format when create/batch_create returns the actual entity
-// TODO: Handle cases where reduced-encode is required
-// TODO: Add tests
-// TODO: Validate version string
-// TODO: Webhooks support
-// TODO: error response or utils to check throttling details
-// TODO: util to extract relevant request failures
-// TODO: look at endorsement api for complex urns
-// TODO: look at messages API for complex x-linkedin-id
-// TODO: get look at social actions for sub-resources
-// TODO: update/delete methods on simple resource don't need id
-// TODO: Support old linkedin header for created id
-// TODO: Add examples folder
-// TODO: Create a type declaration file
-// TODO: Add eslint
-// TODO: Add prettier
-// TODO: Add README
-
 /**
  * Type Definitions
  */
