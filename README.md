@@ -314,7 +314,7 @@ Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criter
 ```js
 apiClient.batchFinder({
   resource: '/organizationAuthorizations',
-  finderName: 'authorizationActionsAndImpersonator'
+  batchFinderName: 'authorizationActionsAndImpersonator'
   queryParams: {
     authorizationActions: [
       {

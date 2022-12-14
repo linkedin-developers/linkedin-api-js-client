@@ -1,3 +1,7 @@
+/**
+ * Utils related to query tunneling
+ */
+
 import _ from 'lodash';
 import { getRestliRequestHeaders } from './api-utils';
 import { constants } from './constants';
@@ -36,7 +40,7 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
       `${urlPath}?${encodedQueryParamString}` :
       urlPath;
     requestConfig = _.merge({
-      method: constants.HTTP_METHODS.GET,
+      method: constants.RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
       url,
       headers: getRestliRequestHeaders({
         restliMethodType: originalRestliMethod,

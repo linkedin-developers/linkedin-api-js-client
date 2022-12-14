@@ -422,8 +422,394 @@ describe('LinkedInApiClient', () => {
           }
         }
       }
-    }
+    },
 
+    /**
+     * BATCH_PARTIAL_UPDATE Method
+     */
+    {
+      description: 'Batch partial update using original/modified entities',
+      inputRequestRestliMethod: 'BATCH_PARTIAL_UPDATE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        ids: ['urn:li:person:123', 'urn:li:person:456'],
+        originalEntities: [
+          {
+            name: 'North',
+            description: 'foobar'
+          },
+          {
+            description: 'foobar'
+          }
+        ],
+        modifiedEntities: [
+          {
+            name: 'South',
+            description: 'foobar'
+          },
+          {
+            name: 'East',
+            description: 'barbaz'
+          }
+        ],
+        versionString: '202210',
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          results: {
+            'urn%3Ali%3Aperson%3A123': { status: 204 },
+            'urn%3Ali%3Aperson%3A456': { status: 204 }
+          }
+        },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: VERSIONED_BASE_URL,
+        path: '/testResource?ids=List(urn%3Ali%3Aperson%3A123,urn%3Ali%3Aperson%3A456)',
+        additionalHeaders: {
+          'linkedin-version': '202210'
+        },
+        body: {
+          entities: {
+            'urn%3Ali%3Aperson%3A123': {
+              patch: {
+                $set: {
+                  name: 'South'
+                }
+              }
+            },
+            'urn%3Ali%3Aperson%3A456': {
+              patch: {
+                $set: {
+                  name: 'East',
+                  description: 'barbaz'
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      description: 'Batch partial update using patchSetObjects',
+      inputRequestRestliMethod: 'BATCH_PARTIAL_UPDATE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        ids: ['urn:li:person:123', 'urn:li:person:456'],
+        patchSetObjects: [
+          {
+            name: 'Steven',
+            description: 'foobar'
+          },
+          {
+            prop1: 123
+          }
+        ],
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          results: {
+            'urn%3Ali%3Aperson%3A123': { status: 204 },
+            'urn%3Ali%3Aperson%3A456': { status: 204 }
+          }
+        },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource?ids=List(urn%3Ali%3Aperson%3A123,urn%3Ali%3Aperson%3A456)',
+        body: {
+          entities: {
+            'urn%3Ali%3Aperson%3A123': {
+              patch: {
+                $set: {
+                  name: 'Steven',
+                  description: 'foobar'
+                }
+              }
+            },
+            'urn%3Ali%3Aperson%3A456': {
+              patch: {
+                $set: {
+                  prop1: 123
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    /**
+     * UPDATE Method
+     */
+    {
+      description: 'Update a simple non-versioned resource',
+      inputRequestRestliMethod: 'UPDATE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        entity: {
+          name: 'Steven',
+          description: 'foobar'
+        },
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: null,
+        status: 204
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource',
+        body: {
+          name: 'Steven',
+          description: 'foobar'
+        }
+      }
+    },
+    {
+      description: 'Update an entity on an versioned, association resource',
+      inputRequestRestliMethod: 'UPDATE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        id: {
+          application: 'urn:li:developerApplication:123',
+          member: 'urn:li:member:456'
+        },
+        entity: {
+          name: 'Steven',
+          description: 'foobar'
+        },
+        versionString: '202210',
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: null,
+        status: 204
+      },
+      expectedRequest: {
+        baseUrl: VERSIONED_BASE_URL,
+        additionalHeaders: {
+          'linkedin-version': '202210'
+        },
+        path: '/testResource/(application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A456)',
+        body: {
+          name: 'Steven',
+          description: 'foobar'
+        }
+      }
+    },
+
+    /**
+     * BATCH_UPDATE Method
+     */
+    {
+      description: 'Batch update on versioned resource',
+      inputRequestRestliMethod: 'BATCH_UPDATE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        ids: [
+          {
+            application: 'urn:li:developerApplication:123',
+            member: 'urn:li:member:321'
+          },
+          {
+            application: 'urn:li:developerApplication:789',
+            member: 'urn:li:member:987'
+          }
+        ],
+        entities: [
+          {
+            name: 'foobar'
+          },
+          {
+            name: 'barbaz'
+          }
+        ],
+        versionString: '202209',
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {},
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: VERSIONED_BASE_URL,
+        additionalHeaders: {
+          'linkedin-version': '202209'
+        },
+        path: '/testResource?ids=List((application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A321),(application:urn%3Ali%3AdeveloperApplication%3A789,member:urn%3Ali%3Amember%3A987))',
+        body: {
+          entities: {
+            '(application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A321)': { name: 'foobar' },
+            '(application:urn%3Ali%3AdeveloperApplication%3A789,member:urn%3Ali%3Amember%3A987)': { name: 'barbaz' }
+          }
+        }
+      }
+    },
+
+    /**
+     * DELETE Method
+     */
+    {
+      description: 'Delete on a simple resource',
+      inputRequestRestliMethod: 'DELETE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {},
+        status: 204
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource'
+      }
+    },
+    {
+      description: 'Delete on a collection resource',
+      inputRequestRestliMethod: 'DELETE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        id: 123,
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {},
+        status: 204
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource/123'
+      }
+    },
+
+    /**
+     * BATCH_DELETE Method
+     */
+    {
+      description: 'Batch delete on a non-versioned resource',
+      inputRequestRestliMethod: 'BATCH_DELETE',
+      inputRequestOptions: {
+        resource: '/testResource',
+        ids: ['urn:li:member:123', 'urn:li:member:456'],
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          results: {}
+        },
+        status: 204
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource?ids=List(urn%3Ali%3Amember%3A123,urn%3Ali%3Amember%3A456)'
+      }
+    },
+
+    /**
+     * FINDER Method
+     */
+    {
+      description: 'Finder on a non-versioned resource',
+      inputRequestRestliMethod: 'FINDER',
+      inputRequestOptions: {
+        resource: '/testResource',
+        finderName: 'search',
+        queryParams: {
+          search: {
+            ids: {
+              values: ['urn:li:entity:123', 'urn:li:entity:456']
+            }
+          }
+        },
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          elements: []
+        },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource?q=search&search=(ids:(values:List(urn%3Ali%3Aentity%3A123,urn%3Ali%3Aentity%3A456)))'
+      }
+    },
+
+    /**
+     * BATCH_FINDER Method
+     */
+    {
+      description: 'Batch finder on a non-versioned resource',
+      inputRequestRestliMethod: 'BATCH_FINDER',
+      inputRequestOptions: {
+        resource: '/testResource',
+        batchFinderName: 'authActions',
+        queryParams: {
+          authActionsCriteria: [
+            {
+              OrgRoleAuthAction: {
+                actionType: 'ADMIN_READ'
+              }
+            },
+            {
+              OrgContentAuthAction: {
+                actionType: 'ORGANIC_SHARE_DELETE'
+              }
+            }
+          ]
+        },
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          elements: [
+            { elements: [] },
+            { elements: [] }
+          ]
+        },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource?bq=authActions&authActionsCriteria=List((OrgRoleAuthAction:(actionType:ADMIN_READ)),(OrgContentAuthAction:(actionType:ORGANIC_SHARE_DELETE)))'
+      }
+    },
+
+    /**
+     * ACTION Method
+     */
+    {
+      description: 'Action on a non-versioned resource',
+      inputRequestRestliMethod: 'ACTION',
+      inputRequestOptions: {
+        resource: '/testResource',
+        actionName: 'doSomething',
+        data: {
+          additionalParam: 123
+        },
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: {
+          value: {
+            prop1: 123
+          }
+        },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/testResource?action=doSomething',
+        body: {
+          additionalParam: 123
+        }
+      }
+    }
   ])('$description', async ({ inputRequestRestliMethod, inputRequestOptions, inputResponse, expectedRequest}) => {
     const expectedCommonHeaders = {
       'x-restli-protocol-version': '2.0.0',

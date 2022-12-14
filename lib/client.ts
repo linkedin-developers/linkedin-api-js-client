@@ -401,8 +401,6 @@ export class ApiClient {
    *
    * @example
    * ```ts
-   * const { utils } = require('linkedin-api-node-client');
-   * ...
    * client.create({
    *   resource: '/adAccountsV2',
    *   entity: {
@@ -412,7 +410,7 @@ export class ApiClient {
    *   },
    *   accessToken: 'ABC123'
    * }).then(response => {
-   *   const createdId = utils.getCreatedEntityId(response);
+   *   const createdId = response.createdEntityId;
    * })
    * ```
    */
@@ -769,6 +767,18 @@ export class ApiClient {
 
   /**
    * Makes a Rest.li DELETE request to delete an entity
+   *
+   * @sample
+   * ```ts
+   * apiClient.delete({
+   *   resource: '/adAccounts',
+   *   id: 123,
+   *   versionString: '202210',
+   *   accessToken: 'ABC123'
+   * }).then(response => {
+   *   const status = response.status;
+   * });
+   * ```
    */
   async delete({
     resource,
@@ -796,6 +806,18 @@ export class ApiClient {
 
   /**
    * Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
+   *
+   * @sample
+   * ```ts
+   * apiClient.batchDelete({
+   *   resource: '/adAccounts',
+   *   ids: [123, 456],
+   *   versionString: '202210',
+   *   accessToken: 'ABC123'
+   * }).then(response => {
+   *   const results = response.data.results;
+   * });
+   * ```
    */
   async batchDelete({
     resource,
@@ -826,6 +848,26 @@ export class ApiClient {
   /**
    * Makes a Rest.li FINDER request to find entities by some specified criteria. This method
    * will perform query tunneling if necessary.
+   *
+   * @example
+   * ```ts
+   * apiClient.finder({
+   *   resource: '/adAccounts',
+   *   finderName: 'search',
+   *   queryParams: {
+   *     search: {
+   *       status: {
+   *         values: ['DRAFT', 'ACTIVE', 'REMOVED']
+   *       }
+   *     }
+   *   },
+   *   accessToken: 'ABC123',
+   *   versionString: '202210'
+   * }).then(response => {
+   *   const elements = response.data.elements;
+   *   const total = response.data.paging.total;
+   * });
+   * ```
    */
   async finder({
     resource,
@@ -856,6 +898,32 @@ export class ApiClient {
   /**
    * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
    * criteria. This method will perform query tunneling if necessary.
+   *
+   * @example
+   * ```ts
+   * apiClient.batchFinder({
+   *   resource: '/organizationAuthorizations',
+   *   batchFinderName: 'authorizationActionsAndImpersonator',
+   *   queryParams: {
+   *     authorizationActions: [
+   *       {
+   *         'OrganizationRoleAuthorizationAction': {
+   *           actionType: 'ADMINISTRATOR_READ'
+   *         }
+   *       },
+   *       {
+   *          'OrganizationContentAuthorizationAction': {
+   *           actionType: 'ORGANIC_SHARE_DELETE'
+   *         }
+   *       }
+   *     ]
+   *   },
+   *   accessToken: 'ABC123',
+   *   versionString: '202210'
+   * }).then(response => {
+   *   const allFinderResults = response.data.elements;
+   * });
+   * ```
    */
   async batchFinder({
     resource,
@@ -885,6 +953,20 @@ export class ApiClient {
 
   /**
    * Makes a Rest.li ACTION request to perform an action on a specified resource
+   *
+   * @example
+   * ```ts
+   * apiClient.action({
+   *   resource: 'testResource',
+   *   actionName: 'doSomething'
+   *   data: {
+   *     additionalParam: 123
+   *   },
+   *   accessToken: 'ABC123'
+   * }).then(response => {
+   *   const result = response.data.value;
+   * })
+   * ```
    */
   async action({
     resource,
