@@ -28,20 +28,20 @@ This library is intended to be used within a NodeJS server application. API requ
   - [Constructor](#constructor)
   - [Properties](#properties)
   - [Methods](#methods)
-    - [`apiClient.get(params)`](#apiclientgetparams)
-    - [`apiClient.batchGet(params)`](#apiclientbatchgetparams)
-    - [`apiClient.getAll(params)`](#apiclientgetallparams)
-    - [`apiClient.finder(params)`](#apiclientfinderparams)
-    - [`apiClient.batchFinder(params)`](#apiclientbatchfinderparams)
-    - [`apiClient.create(params)`](#apiclientcreateparams)
-    - [`apiClient.batchCreate(params)`](#apiclientbatchcreateparams)
-    - [`apiClient.update(params)`](#apiclientupdateparams)
-    - [`apiClient.batchUpdate(params)`](#apiclientbatchupdateparams)
-    - [`apiClient.partialUpdate(params)`](#apiclientpartialupdateparams)
-    - [`apiClient.batchPartialUpdate(params)`](#apiclientbatchpartialupdateparams)
-    - [`apiClient.delete(params)`](#apiclientdeleteparams)
-    - [`apiClient.batchDelete(params)`](#apiclientbatchdeleteparams)
-    - [`apiClient.action(params)`](#apiclientactionparams)
+    - [`restliClient.get(params)`](#restliclientgetparams)
+    - [`restliClient.batchGet(params)`](#restliclientbatchgetparams)
+    - [`restliClient.getAll(params)`](#restliclientgetallparams)
+    - [`restliClient.finder(params)`](#restliclientfinderparams)
+    - [`restliClient.batchFinder(params)`](#restliclientbatchfinderparams)
+    - [`restliClient.create(params)`](#restliclientcreateparams)
+    - [`restliClient.batchCreate(params)`](#restliclientbatchcreateparams)
+    - [`restliClient.update(params)`](#restliclientupdateparams)
+    - [`restliClient.batchUpdate(params)`](#restliclientbatchupdateparams)
+    - [`restliClient.partialUpdate(params)`](#restliclientpartialupdateparams)
+    - [`restliClient.batchPartialUpdate(params)`](#restliclientbatchpartialupdateparams)
+    - [`restliClient.delete(params)`](#restliclientdeleteparams)
+    - [`restliClient.batchDelete(params)`](#restliclientbatchdeleteparams)
+    - [`restliClient.action(params)`](#restliclientactionparams)
 - [Auth Client](#auth-client)
   - [Constructor](#constructor-1)
   - [Methods](#methods-1)
@@ -85,12 +85,12 @@ yarn add linkedin-api-js-client
 From the [API docs](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin?context=linkedin%2Fconsumer%2Fcontext) for the Sign In with LinkedIn API product, we see this is a simple get request to fetch the current user's profile.
 
 ```js
-const { ApiClient } = require('linkedin-api-js-client');
+const { RestliClient } = require('linkedin-api-js-client');
 
 ...
-const apiClient = new ApiClient();
+const restliClient = new RestliClient();
 
-apiClient.get({
+restliClient.get({
   resource: '/me',
   accessToken: <THREE_LEGGED_ACCESS_TOKEN>
 }).then(response => {
@@ -112,9 +112,9 @@ The API client defines instance methods for all the Rest.li methods which are us
 An instance of the API client must be created before using.
 
 ```
-const { ApiClient } = require('linkedin-api-js-client');
+const { RestliClient } = require('linkedin-api-js-client');
 
-const apiClient = new ApiClient(config);
+const restliClient = new RestliClient(config);
 ```
 
 | Parameter | Type | Required? | Description |
@@ -139,13 +139,13 @@ All methods of the API client require passing in a request options object, all o
 | `BaseRequestOptions.queryParams` | Object | No | A map of query parameters. The parameter keys and values will be correctly encoded by this method, so these should not be encoded. |
 | `BaseRequestOptions.accessToken` | String | Yes | The access token that should provide the application access to the specified API |
 | `BaseRequestOptions.versionString` | String | No | An optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL |
-| `BaseRequestOptions.additionalConfig` | Object : [AxiosRequestConfig](https://axios-http.com/docs/req_config) | No | An optional Axios request config object that will be merged into the request config. This will override any properties the client method sets and any properties passed in during the ApiClient instantiation, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the `queryParams` proeprty for proper Rest.li encoding. |
+| `BaseRequestOptions.additionalConfig` | Object : [AxiosRequestConfig](https://axios-http.com/docs/req_config) | No | An optional Axios request config object that will be merged into the request config. This will override any properties the client method sets and any properties passed in during the RestliClient instantiation, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the `queryParams` proeprty for proper Rest.li encoding. |
 
 #### Base Response Object
 
 All methods of the API client return a Promise that resolves to a response object that extends [AxiosResponse](https://axios-http.com/docs/res_schema). This client provides more detailed interfaces of the specific response data payload that is useful for static type-checking and IDE auto-completion.
 
-#### `apiClient.get(params)`
+#### `restliClient.get(params)`
 
 Makes a Rest.li GET request to fetch the specified entity on a resource. This method will perform query tunneling if necessary.
 
@@ -165,7 +165,7 @@ Makes a Rest.li GET request to fetch the specified entity on a resource. This me
 
 **Example:**
 ```js
-apiClient.get({
+restliClient.get({
   resource: '/adAccounts',
   id: 123,
   queryParams: {
@@ -178,7 +178,7 @@ apiClient.get({
 });
 ```
 
-#### `apiClient.batchGet(params)`
+#### `restliClient.batchGet(params)`
 
 Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This method will perform query tunneling if necessary.
 
@@ -200,7 +200,7 @@ Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This
 
 **Example:**
 ```js
-apiClient.batchGet({
+restliClient.batchGet({
   resource: '/adCampaignGroups',
   id: [123, 456, 789],
   accessToken: MY_ACCESS_TOKEN,
@@ -210,7 +210,7 @@ apiClient.batchGet({
 });
 ```
 
-#### `apiClient.getAll(params)`
+#### `restliClient.getAll(params)`
 
 Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 
@@ -230,7 +230,7 @@ Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 
 **Example:**
 ```js
-apiClient.getAll({
+restliClient.getAll({
   resource: '/fieldsOfStudy',
   queryParams: {
     start: 0,
@@ -244,7 +244,7 @@ apiClient.getAll({
 });
 ```
 
-#### `apiClient.finder(params)`
+#### `restliClient.finder(params)`
 
 Makes a Rest.li FINDER request to find entities by some specified criteria.
 
@@ -265,7 +265,7 @@ Makes a Rest.li FINDER request to find entities by some specified criteria.
 
 **Example:**
 ```js
-apiClient.finder({
+restliClient.finder({
   resource: '/adAccounts',
   finderName: 'search'
   queryParams: {
@@ -287,7 +287,7 @@ apiClient.finder({
 });
 ```
 
-#### `apiClient.batchFinder(params)`
+#### `restliClient.batchFinder(params)`
 
 Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criteria.
 
@@ -312,7 +312,7 @@ Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criter
 
 **Example:**
 ```js
-apiClient.batchFinder({
+restliClient.batchFinder({
   resource: '/organizationAuthorizations',
   batchFinderName: 'authorizationActionsAndImpersonator'
   queryParams: {
@@ -336,7 +336,7 @@ apiClient.batchFinder({
 });
 ```
 
-#### `apiClient.create(params)`
+#### `restliClient.create(params)`
 
 Makes a Rest.li CREATE request to create a new entity on the resource.
 
@@ -356,7 +356,7 @@ Makes a Rest.li CREATE request to create a new entity on the resource.
 
 **Example:**
 ```js
-apiClient.create({
+restliClient.create({
   resource: '/adAccountsV2',
   entity: {
     name: 'Test Ad Account',
@@ -369,7 +369,7 @@ apiClient.create({
 });
 ```
 
-#### `apiClient.batchCreate(params)`
+#### `restliClient.batchCreate(params)`
 
 Makes a Rest.li BATCH_CREATE request to create multiple entities in a single call.
 
@@ -392,7 +392,7 @@ Makes a Rest.li BATCH_CREATE request to create multiple entities in a single cal
 
 **Example:**
 ```js
-apiClient.batchCreate({
+restliClient.batchCreate({
   resource: '/adCampaignGroups',
   entities: [
     {
@@ -413,7 +413,7 @@ apiClient.batchCreate({
 });
 ```
 
-#### `apiClient.update(params)`
+#### `restliClient.update(params)`
 
 Makes a Rest.li UPDATE request to update an entity (overwriting the entire entity).
 
@@ -432,7 +432,7 @@ Makes a Rest.li UPDATE request to update an entity (overwriting the entire entit
 
 **Example:**
 ```js
-apiClient.update({
+restliClient.update({
   resource: '/adAccountUsers',
   id: {
     account: 'urn:li:sponsoredAccount:123',
@@ -450,7 +450,7 @@ apiClient.update({
 });
 ```
 
-#### `apiClient.batchUpdate(params)`
+#### `restliClient.batchUpdate(params)`
 
 Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
 
@@ -470,7 +470,7 @@ Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single cal
 
 **Example:**
 ```js
-apiClient.batchUpdate({
+restliClient.batchUpdate({
   resource: '/campaignConversions',
   ids: [
     { campaign: 'urn:li:sponsoredCampaign:123', conversion: 'urn:lla:llaPartnerConversion:456' },
@@ -486,7 +486,7 @@ apiClient.batchUpdate({
 });
 ```
 
-#### `apiClient.partialUpdate(params)`
+#### `restliClient.partialUpdate(params)`
 
 Makes a Rest.li PARTIAL_UPDATE request to update part of an entity. One can either directly pass the patch object to send in the request, or one can pass the full original and modified entity objects, with the method computing the correct patch object.
 
@@ -510,7 +510,7 @@ When an entity has nested fields that can be modified, passing in the original a
 
 **Example:**
 ```js
-apiClient.partialUpdate({
+restliClient.partialUpdate({
   resource: '/adAccounts',
   id: 123,
   patchSetObject: {
@@ -524,7 +524,7 @@ apiClient.partialUpdate({
 });
 ```
 
-#### `apiClient.batchPartialUpdate(params)`
+#### `restliClient.batchPartialUpdate(params)`
 
 Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at once.
 
@@ -548,7 +548,7 @@ Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entite
 
 **Example:**
 ```js
-apiClient.batchPartialUpdate({
+restliClient.batchPartialUpdate({
   resource: '/adCampaignGroups',
   id: [123, 456],
   patchSetObjects: [
@@ -567,7 +567,7 @@ apiClient.batchPartialUpdate({
 });
 ```
 
-#### `apiClient.delete(params)`
+#### `restliClient.delete(params)`
 
 Makes a Rest.li DELETE request to delete an entity.
 
@@ -586,7 +586,7 @@ Makes a Rest.li DELETE request to delete an entity.
 
 **Example:**
 ```js
-apiClient.delete({
+restliClient.delete({
   resource: '/adAccounts',
   id: 123,
   versionString: '202210',
@@ -596,7 +596,7 @@ apiClient.delete({
 });
 ```
 
-#### `apiClient.batchDelete(params)`
+#### `restliClient.batchDelete(params)`
 
 Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 
@@ -617,7 +617,7 @@ Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 
 **Example:**
 ```js
-apiClient.batchDelete({
+restliClient.batchDelete({
   resource: '/adAccounts',
   ids: [123, 456],
   versionString: '202210',
@@ -627,7 +627,7 @@ apiClient.batchDelete({
 });
 ```
 
-#### `apiClient.action(params)`
+#### `restliClient.action(params)`
 
 Makes a Rest.li ACTION request to perform an action on a specified resource.
 
@@ -648,7 +648,7 @@ Makes a Rest.li ACTION request to perform an action on a specified resource.
 
 **Example:**
 ```js
-apiClient.action({
+restliClient.action({
   resource: '/testResource',
   actionName: 'doSomething',
   accessToken: MY_ACCESS_TOKEN

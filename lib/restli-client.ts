@@ -261,7 +261,7 @@ export interface LIActionResponse extends AxiosResponse {
 }
 
 
-export class ApiClient {
+export class RestliClient {
   axiosInstance: AxiosInstance;
 
   constructor(config: CreateAxiosDefaults = {}) {
@@ -770,7 +770,7 @@ export class ApiClient {
    *
    * @sample
    * ```ts
-   * apiClient.delete({
+   * restliClient.delete({
    *   resource: '/adAccounts',
    *   id: 123,
    *   versionString: '202210',
@@ -809,7 +809,7 @@ export class ApiClient {
    *
    * @sample
    * ```ts
-   * apiClient.batchDelete({
+   * restliClient.batchDelete({
    *   resource: '/adAccounts',
    *   ids: [123, 456],
    *   versionString: '202210',
@@ -851,7 +851,7 @@ export class ApiClient {
    *
    * @example
    * ```ts
-   * apiClient.finder({
+   * restliClient.finder({
    *   resource: '/adAccounts',
    *   finderName: 'search',
    *   queryParams: {
@@ -901,7 +901,7 @@ export class ApiClient {
    *
    * @example
    * ```ts
-   * apiClient.batchFinder({
+   * restliClient.batchFinder({
    *   resource: '/organizationAuthorizations',
    *   batchFinderName: 'authorizationActionsAndImpersonator',
    *   queryParams: {
@@ -956,7 +956,7 @@ export class ApiClient {
    *
    * @example
    * ```ts
-   * apiClient.action({
+   * restliClient.action({
    *   resource: 'testResource',
    *   actionName: 'doSomething'
    *   data: {
