@@ -57,7 +57,7 @@ This library is intended to be used within a NodeJS server application. API requ
     - [`utils.createUrnFromAttrs()`](#utilscreateurnfromattrs)
     - [`utils.getCreatedEntityId(response)`](#utilsgetcreatedentityidresponse)
     - [`utils.getPatchObject(original, modified)`](#utilsgetpatchobjectoriginal-modified)
-
+- [List of dependencies](#list-of-dependencies)
 
 ## Installation
 
@@ -788,4 +788,14 @@ Introspect a 2-legged, 3-legged or Enterprise access token to get information on
 
 #### `utils.getPatchObject(original, modified)`
 
+---
 
+## List of dependencies
+
+The following table is a list of production dependencies.
+
+| Component Name | License | Linked | Modified |
+|---|---|---|---|
+| [axios](https://github.com/axios/axios) | MIT | Static | No |
+| [lodash](https://github.com/lodash/lodash) | MIT | Static | No |
+| [qs](https://github.com/ljharb/qs) | BSD-3-Clause | Static | No |
