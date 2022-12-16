@@ -43,8 +43,8 @@ function validateSuffix(serializedrestli: string, suffix: string): void {
 function findLastRightBracket(str: string, pos = 0): number {
   let numLeft = 0;
   let hasMetFirst = false;
-  const L = "(",
-    R = ")";
+  const L = '(';
+  const R = ')';
   while (pos < str.length) {
     const currChar = str[pos];
     if (currChar === L) {
@@ -67,15 +67,15 @@ function restliUnescape(value: string, reduced: boolean): string {
   } else if (testEscapedChars.test(value)) {
     value = value.replace(escapedChars, unescape);
   }
-  return value === undefined || value === "''" ? "" : value;
+  return value === undefined || value === "''" ? '' : value;
 }
 
 export function paramDecode(
   querystring: string
 ): Record<string, StringOrStringObject> {
   return querystring
-    .split("&")
-    .reduce(function (
+    .split('&')
+    .reduce(function(
       previous: Record<string, StringOrStringObject>,
       current: string
     ) {
@@ -83,17 +83,17 @@ export function paramDecode(
       if (!current.length) {
         return previous;
       }
-      if (current.indexOf("=") === 0) {
+      if (current.indexOf('=') === 0) {
         return previous;
       }
 
-      let [key = "", value] = current.split("=");
+      let [key = '', value] = current.split('=');
 
       // Rest.li special-cases empty strings.
       if (key === "''") {
-        key = "";
+        key = '';
       }
-      if (value === undefined || value === "") {
+      if (value === undefined || value === '') {
         value = "''";
       }
 
@@ -125,7 +125,7 @@ function internalDecode(
   reduced: boolean
 ): StringOrStringObject {
   if (serializedrestli === undefined || serializedrestli === "''") {
-    serializedrestli = "";
+    serializedrestli = '';
   }
   if (strStartsWith(serializedrestli, LIST_PREFIX)) {
     validateSuffix(serializedrestli, LIST_SUFFIX);
@@ -167,7 +167,7 @@ function decodeList(str: string, reduced = false): string[] {
       idx = rightBracketIdx + 2; // skip the next comma
       continue;
     }
-    let endIdx = str.indexOf(",", idx);
+    let endIdx = str.indexOf(',', idx);
     if (endIdx < 0) endIdx = str.length;
     retList.push(restliUnescape(str.substring(idx, endIdx), reduced));
     idx = endIdx + 1;
@@ -187,7 +187,7 @@ function decodeObject(
   const retObj: Record<string, string> = {};
   let idx = 0;
   while (idx < str.length) {
-    const colonIdx = str.indexOf(":", idx);
+    const colonIdx = str.indexOf(':', idx);
     const key = restliUnescape(str.substring(idx, colonIdx), reduced);
     idx = colonIdx + 1;
     if (str.startsWith(LIST_PREFIX, idx) || str.startsWith(OBJ_PREFIX, idx)) {
@@ -199,7 +199,7 @@ function decodeObject(
       idx = rightBracketIdx + 2; // skip the next comma
       continue;
     }
-    let endIdx = str.indexOf(",", idx);
+    let endIdx = str.indexOf(',', idx);
     if (endIdx < 0) endIdx = str.length;
     const value = restliUnescape(str.substring(idx, endIdx), reduced);
     retObj[key] = value;

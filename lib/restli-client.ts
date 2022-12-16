@@ -11,7 +11,6 @@ import _ from 'lodash';
  * Type Definitions
  */
 
-
 export interface LIRestliRequestOptionsBase {
   /** The API resource name (e.g. "/adAccounts") */
   resource: string,
@@ -19,7 +18,7 @@ export interface LIRestliRequestOptionsBase {
   queryParams?: Record<string, any>,
   /** The access token that should provide the application access to the specified API */
   accessToken: string,
-  /** optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL.*/
+  /** optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL. */
   versionString?: string,
   /** optional Axios request config object that will be merged into the request config. This will override any properties the client method sets, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the queryParams property for proper Rest.li encoding. */
   additionalConfig?: AxiosRequestConfig
@@ -28,12 +27,12 @@ export interface LIRestliRequestOptionsBase {
 /**
  * A Rest.li entity
  */
-export type RestliEntity = Record<string, any>
+export type RestliEntity = Record<string, any>;
 
 /**
  * A Rest.li entity id or key. The id can be a string, number, or complex key. The id should not be encoded, as the client method will perform the correct encoding.
  */
-export type RestliEntityId = string | number | Record<string, any>
+export type RestliEntityId = string | number | Record<string, any>;
 
 /**
  * An encoded entity id
@@ -56,7 +55,6 @@ export interface PagingObject {
  * Request Options Interfaces
  */
 
-
 export interface LIGetRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to fetch. For simple resources, this should not be specified. */
   id?: RestliEntityId
@@ -68,7 +66,6 @@ export interface LIBatchGetRequestOptions extends LIRestliRequestOptionsBase {
 }
 
 export interface LIGetAllRequestOptions extends LIRestliRequestOptionsBase {}
-
 
 export interface LICreateRequestOptions extends LIRestliRequestOptionsBase {
   /** A JSON serialized value of the entity to create */
@@ -143,11 +140,9 @@ export interface LIActionRequestOptions extends LIRestliRequestOptionsBase {
   data?: Record<string, any>
 }
 
-
 /**
  * Response Interfaces
  */
-
 
 export interface LIGetResponse extends AxiosResponse {
   /** The entity that was fetched */
@@ -201,7 +196,7 @@ export interface LIBatchPartialUpdateResponse extends AxiosResponse {
       status: number
     }>,
     /** A map where the keys are the encoded entity ids that failed to be updated, and the values include the error response. */
-    errors: Record<EncodedEntityId, any>,
+    errors: Record<EncodedEntityId, any>
   }
 }
 
@@ -261,7 +256,6 @@ export interface LIActionResponse extends AxiosResponse {
   }
 }
 
-
 export class RestliClient {
   axiosInstance: AxiosInstance;
 
@@ -297,7 +291,7 @@ export class RestliClient {
     versionString,
     accessToken,
     additionalConfig
-  }: LIGetRequestOptions) : Promise<LIGetResponse> {
+  }: LIGetRequestOptions): Promise<LIGetResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     // Simple resources do not have id
@@ -338,7 +332,7 @@ export class RestliClient {
     versionString,
     accessToken,
     additionalConfig = {}
-  }: LIBatchGetRequestOptions) : Promise<LIBatchGetResponse> {
+  }: LIBatchGetRequestOptions): Promise<LIBatchGetResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       ids,
@@ -381,7 +375,7 @@ export class RestliClient {
     versionString,
     accessToken,
     additionalConfig
-  } : LIGetAllRequestOptions) : Promise<LIGetAllResponse> {
+  }: LIGetAllRequestOptions): Promise<LIGetAllResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
 
@@ -422,14 +416,14 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LICreateRequestOptions) : Promise<LICreateResponse> {
+  }: LICreateRequestOptions): Promise<LICreateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     const requestConfig = _.merge({
       method: 'POST',
-      url: encodedQueryParamString ?
-        `${baseUrl}${resource}?${encodedQueryParamString}` :
-        `${baseUrl}${resource}`,
+      url: encodedQueryParamString
+        ? `${baseUrl}${resource}?${encodedQueryParamString}`
+        : `${baseUrl}${resource}`,
       data: entity,
       headers: getRestliRequestHeaders({
         restliMethodType: RESTLI_METHODS.CREATE,
@@ -479,14 +473,14 @@ export class RestliClient {
     versionString,
     accessToken,
     additionalConfig = {}
-  } : LIBatchCreateRequestOptions) : Promise<LIBatchCreateResponse> {
+  }: LIBatchCreateRequestOptions): Promise<LIBatchCreateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     const requestConfig = _.merge({
       method: 'POST',
-      url: encodedQueryParamString ?
-        `${baseUrl}${resource}?${encodedQueryParamString}` :
-        `${baseUrl}${resource}`,
+      url: encodedQueryParamString
+        ? `${baseUrl}${resource}?${encodedQueryParamString}`
+        : `${baseUrl}${resource}`,
       data: {
         elements: entities
       },
@@ -538,7 +532,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIPartialUpdateRequestOptions) : Promise<LIPartialUpdateResponse> {
+  }: LIPartialUpdateRequestOptions): Promise<LIPartialUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
@@ -548,7 +542,7 @@ export class RestliClient {
       if (typeof patchSetObject === 'object' && Object.keys(patchSetObject).length === 0) {
         throw new Error('patchSetObject must be an object with at least one key-value pair');
       }
-      patchData = { 'patch': { '$set': patchSetObject } };
+      patchData = { patch: { $set: patchSetObject } };
     } else if (originalEntity && modifiedEntity) {
       patchData = getPatchObject(originalEntity, modifiedEntity);
       if (!patchData || Object.keys(patchData).length === 0) {
@@ -606,7 +600,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIBatchPartialUpdateRequestOptions) : Promise<LIBatchPartialUpdateResponse> {
+  }: LIBatchPartialUpdateRequestOptions): Promise<LIBatchPartialUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
 
     if (patchSetObjects) {
@@ -631,7 +625,7 @@ export class RestliClient {
       entities = ids.reduce((prev, curr, index) => {
         const encodedEntityId = encode(curr);
         prev[encodedEntityId] = {
-          'patch': { '$set': patchSetObjects[index] }
+          patch: { $set: patchSetObjects[index] }
         };
         return prev;
       }, {});
@@ -657,7 +651,6 @@ export class RestliClient {
 
     return await this.axiosInstance.request(requestConfig);
   }
-
 
   /**
    * Makes a Rest.li UPDATE request to update an entity (overwriting the entire entity).
@@ -691,7 +684,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIUpdateRequestOptions) : Promise<LIUpdateResponse> {
+  }: LIUpdateRequestOptions): Promise<LIUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
@@ -739,7 +732,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIBatchUpdateRequestOptions) : Promise<LIBatchUpdateResponse> {
+  }: LIBatchUpdateRequestOptions): Promise<LIBatchUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       ids,
@@ -788,7 +781,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIDeleteRequestOptions) : Promise<LIDeleteResponse> {
+  }: LIDeleteRequestOptions): Promise<LIDeleteResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
@@ -827,7 +820,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIBatchDeleteRequestOptions) : Promise<LIBatchDeleteResponse> {
+  }: LIBatchDeleteRequestOptions): Promise<LIBatchDeleteResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       ids,
@@ -877,7 +870,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIFinderRequestOptions) : Promise<LIFinderResponse> {
+  }: LIFinderRequestOptions): Promise<LIFinderResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       q: finderName,
@@ -933,7 +926,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig = {}
-  } : LIBatchFinderRequestOptions) : Promise<LIBatchFinderResponse> {
+  }: LIBatchFinderRequestOptions): Promise<LIBatchFinderResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       bq: batchFinderName,
@@ -977,7 +970,7 @@ export class RestliClient {
     versionString = null,
     accessToken,
     additionalConfig
-  } : LIActionRequestOptions) : Promise<LIActionResponse> {
+  }: LIActionRequestOptions): Promise<LIActionResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode({
       action: actionName,
@@ -991,7 +984,8 @@ export class RestliClient {
         restliMethodType: RESTLI_METHODS.ACTION,
         accessToken,
         versionString
-      }), additionalConfig
+      }),
+      additionalConfig
     });
     return await this.axiosInstance.request(requestConfig);
   }

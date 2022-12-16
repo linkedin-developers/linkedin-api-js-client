@@ -19,7 +19,7 @@ function assertIsObjectNotArray(
   json: unknown,
   errorMessage: string
 ): asserts json is JSONBlob {
-  if (Array.isArray(json) || typeof json !== "object" || json === null) {
+  if (Array.isArray(json) || typeof json !== 'object' || json === null) {
     throw new Error(errorMessage);
   }
 }
@@ -61,7 +61,7 @@ export function paramEncode(json: unknown): string {
 
   assertIsObjectNotArray(
     parsedJson,
-    "You must pass an object to the paramEncode function."
+    'You must pass an object to the paramEncode function.'
   );
 
   const query = Object.keys(parsedJson).map((property) => {
@@ -70,13 +70,13 @@ export function paramEncode(json: unknown): string {
       false
     )}`;
   });
-  return query.join("&");
+  return query.join('&');
 }
 
 function isRecord(
   value: JSONBlob | PrimitiveOrNullOrUndefined
 ): value is JSONBlob {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 /**
@@ -119,7 +119,7 @@ function encodeArray(
   for (let i = 0; i < value.length; i++) {
     nested[i] = encodeAnyType(value[i], reduced);
   }
-  return `${LIST_PREFIX}${nested.join(",")}${LIST_SUFFIX}`;
+  return `${LIST_PREFIX}${nested.join(',')}${LIST_SUFFIX}`;
 }
 
 /**
@@ -132,7 +132,7 @@ function encodeObject(value: JSONBlob, reduced: boolean): string {
       reduced
     )}`;
   });
-  return `${OBJ_PREFIX}${nested.join(",")}${OBJ_SUFFIX}`;
+  return `${OBJ_PREFIX}${nested.join(',')}${OBJ_SUFFIX}`;
 }
 
 /**
@@ -142,9 +142,9 @@ function encodePrimitive(
   value: PrimitiveOrNullOrUndefined,
   reduced = false
 ): PrimitiveOrNullOrUndefined {
-  if (value === "") {
+  if (value === '') {
     return "''";
-  } else if (reduced && typeof value === "string" && possible.test(value)) {
+  } else if (reduced && typeof value === 'string' && possible.test(value)) {
     return value.replace(badChars, escape);
   } else if (!reduced) {
     // TODO avoid casting here. encodeURIComponent type is not correct as it actually accepts null and undefined

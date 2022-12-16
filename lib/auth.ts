@@ -36,20 +36,20 @@ export interface AccessToken3LResponse {
 
 enum TokenAuthType {
   /** 2-legged application token */
-  TWO_LEGGED = "2L",
+  TWO_LEGGED = '2L',
   /** 3-legged member token */
-  THREE_LEGGED = "3L",
+  THREE_LEGGED = '3L',
   /** Enterprise member token */
-  ENTERPRISE = "Enterprise_User"
+  ENTERPRISE = 'Enterprise_User'
 }
 
 enum TokenStatus {
   /** Token has been revoked */
-  REVOKED = "revoked",
+  REVOKED = 'revoked',
   /** Token has expired */
-  EXPIRED = "expired",
+  EXPIRED = 'expired',
   /** Token is active */
-  ACTIVE = "active"
+  ACTIVE = 'active'
 }
 
 export interface IntrospectTokenResponse {
@@ -100,7 +100,7 @@ export class AuthClient {
    *
    * @returns A promise that resolves to the 2-legged access token details
    */
-  async getTwoLeggedAccessToken() : Promise<AccessToken2LResponse> {
+  async getTwoLeggedAccessToken(): Promise<AccessToken2LResponse> {
     const response = await axios.request({
       method: HTTP_METHODS.POST,
       url: `${OAUTH_BASE_URL}/accessToken`,
@@ -128,7 +128,7 @@ export class AuthClient {
     scopes: string[],
     /** An optional string that can be provided to test against CSRF attacks. */
     state: string = undefined
-  ) : string {
+  ): string {
     return generateMemberAuthorizationUrl({
       clientId: this.clientId,
       redirectUrl: this.redirectUrl,

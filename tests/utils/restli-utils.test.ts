@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import { getCreatedEntityId } from '../../lib/utils/restli-utils';
 
 describe('restli-utils', () => {

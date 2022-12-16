@@ -24,7 +24,7 @@ interface TestCaseParameters {
     path: string,
     overrideMethod?: string,
     body?: any,
-    additionalHeaders?: Record<string,any>
+    additionalHeaders?: Record<string, any>
   }
 }
 
@@ -98,7 +98,7 @@ describe('RestliClient', () => {
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
         resource: '/accountRoles',
-        id: { member: 'urn:li:person:123', account: 'urn:li:account:234'},
+        id: { member: 'urn:li:person:123', account: 'urn:li:account:234' },
         queryParams: {
           param1: 'foobar',
           param2: { prop1: 'abc', prop2: 'def' }
@@ -134,7 +134,7 @@ describe('RestliClient', () => {
       expectedRequest: {
         baseUrl: NON_VERSIONED_BASE_URL,
         path: '/adAccounts/123'
-      },
+      }
     },
     {
       description: 'Get request with query tunneling',
@@ -160,7 +160,7 @@ describe('RestliClient', () => {
           'x-http-method-override': 'GET',
           'content-type': 'application/x-www-form-urlencoded'
         }
-      },
+      }
     },
 
     /**
@@ -219,7 +219,7 @@ describe('RestliClient', () => {
       expectedRequest: {
         baseUrl: VERSIONED_BASE_URL,
         path: '/testResource?ids=List((member:urn%3Ali%3Aperson%3A123,account:urn%3Ali%3Aaccount%3A234),(member:urn%3Ali%3Aperson%3A234,account:urn%3Ali%3Aaccount%3A345),(member:urn%3Ali%3Aperson%3A345,account:urn%3Ali%3Aaccount%3A456))&param1=foobar&param2=(prop1:abc,prop2:def)'
-      },
+      }
     },
     {
       description: 'Batch get request with error response',
@@ -241,7 +241,7 @@ describe('RestliClient', () => {
       expectedRequest: {
         baseUrl: NON_VERSIONED_BASE_URL,
         path: '/testResource?ids=List(123,456,789)'
-      },
+      }
     },
     {
       description: 'Batch get request with query tunneling',
@@ -273,7 +273,7 @@ describe('RestliClient', () => {
           'x-http-method-override': 'GET',
           'content-type': 'application/x-www-form-urlencoded'
         }
-      },
+      }
     },
 
     /**
@@ -298,7 +298,7 @@ describe('RestliClient', () => {
       },
       expectedRequest: {
         baseUrl: NON_VERSIONED_BASE_URL,
-        path: '/testResource',
+        path: '/testResource'
 
       }
     },
@@ -833,11 +833,11 @@ describe('RestliClient', () => {
         }
       }
     }
-  ])('$description', async ({ inputRequestRestliMethod, inputRequestOptions, inputResponse, expectedRequest} : TestCaseParameters) => {
+  ])('$description', async({ inputRequestRestliMethod, inputRequestOptions, inputResponse, expectedRequest }: TestCaseParameters) => {
     const expectedCommonHeaders = {
       'x-restli-protocol-version': '2.0.0',
       'x-restli-method': inputRequestRestliMethod.toLowerCase(),
-      'authorization': `Bearer ${TEST_BEARER_TOKEN}`
+      authorization: `Bearer ${TEST_BEARER_TOKEN}`
     };
 
     // Mock the expected http request
@@ -848,11 +848,9 @@ describe('RestliClient', () => {
      */
     const httpMethod = expectedRequest.overrideMethod || RESTLI_METHOD_TO_HTTP_METHOD_MAP[inputRequestRestliMethod];
     nock(expectedRequest.baseUrl, {
-      reqheaders: {...expectedCommonHeaders, ...expectedRequest.additionalHeaders}
-    })
-      [httpMethod.toLowerCase()](expectedRequest.path, expectedRequest.body)
+      reqheaders: { ...expectedCommonHeaders, ...expectedRequest.additionalHeaders }
+    })[httpMethod.toLowerCase()](expectedRequest.path, expectedRequest.body)
       .reply(inputResponse.status, inputResponse.data, inputResponse.headers);
-
 
     // Make request using LinkedIn Restli client
     const restliClient = new RestliClient();
@@ -873,5 +871,4 @@ describe('RestliClient', () => {
       expect(response.status).toBe(inputResponse.status);
     }
   });
-
 });

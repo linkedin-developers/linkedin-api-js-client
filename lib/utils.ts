@@ -20,4 +20,4 @@ export const utils = {
   decode,
   paramDecode,
   reducedDecode
-}
+};

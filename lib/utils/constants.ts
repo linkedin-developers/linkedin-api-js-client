@@ -63,7 +63,7 @@ export const RESTLI_METHOD_TO_HTTP_METHOD_MAP = {
 /**
  * Rest.li protocol encoding constants
  */
-export const LIST_PREFIX = "List(";
-export const LIST_SUFFIX = ")";
-export const OBJ_PREFIX = "(";
-export const OBJ_SUFFIX = ")";
+export const LIST_PREFIX = 'List(';
+export const LIST_SUFFIX = ')';
+export const OBJ_PREFIX = '(';
+export const OBJ_SUFFIX = ')';

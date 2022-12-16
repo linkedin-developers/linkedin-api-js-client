@@ -12,7 +12,8 @@
     "allowJs": true
   },
   "include": [
-    "lib"
+    "lib",
+    "tests"
   ],
   "exclude": [
     "node_modules"

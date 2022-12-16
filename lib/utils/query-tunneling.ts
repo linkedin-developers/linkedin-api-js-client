@@ -41,9 +41,9 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
       })
     }, additionalConfig);
   } else {
-    const url = encodedQueryParamString ?
-      `${urlPath}?${encodedQueryParamString}` :
-      urlPath;
+    const url = encodedQueryParamString
+      ? `${urlPath}?${encodedQueryParamString}`
+      : urlPath;
     requestConfig = _.merge({
       method: RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
       url,
@@ -76,12 +76,12 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
      */
     let boundary = generateRandomString();
     const rawRequestBodyString = encodedQueryParamString + JSON.stringify(originalJSONRequestBody);
-    while (rawRequestBodyString.indexOf(boundary) > -1) {
+    while (rawRequestBodyString.includes(boundary)) {
       boundary = generateRandomString();
     }
 
     // Generate the multipart request body
-    let multipartRequestBody = `--${boundary}\r\n` +
+    const multipartRequestBody = `--${boundary}\r\n` +
       `${HEADERS.CONTENT_TYPE}: ${CONTENT_TYPE.URL_ENCODED}\r\n\r\n` +
       `${encodedQueryParamString}\r\n` +
       `--${boundary}\r\n` +
@@ -104,9 +104,9 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
       additionalConfig
     });
   } else {
-    const url = encodedQueryParamString ?
-      `${urlPath}?${encodedQueryParamString}` :
-      urlPath;
+    const url = encodedQueryParamString
+      ? `${urlPath}?${encodedQueryParamString}`
+      : urlPath;
 
     requestConfig = _.merge({
       method: originalHttpMethod,
