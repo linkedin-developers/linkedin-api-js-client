@@ -1,4 +1,4 @@
-const { constants } = require('./constants');
+const { OAUTH_BASE_URL } = require('./constants');
 
 export function generateMemberAuthorizationUrl({
   clientId,
@@ -13,5 +13,5 @@ export function generateMemberAuthorizationUrl({
     'state': state,
     'scope': ''
   });
-  return `${constants.OAUTH_BASE_URL}/authorization?${queryParams.toString()}${encodeURIComponent(scopes.join(' '))}`;
+  return `${OAUTH_BASE_URL}/authorization?${queryParams.toString()}${encodeURIComponent(scopes.join(' '))}`;
 }

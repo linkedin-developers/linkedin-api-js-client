@@ -4,7 +4,9 @@ import * as apiUtils from './utils/api-utils';
 import * as urnUtils from './utils/urn-utils';
 import * as patchUtils from './utils/patch-generator';
 import * as queryTunnelingUtils from './utils/query-tunneling';
-import { constants } from './utils/constants';
+import * as constants from './utils/constants';
+import * as encoderUtils from './utils/encoder';
+import { decode, paramDecode, reducedDecode } from './utils/decoder';
 
 export const utils = {
   ...oauthUtils,
@@ -13,5 +15,9 @@ export const utils = {
   ...urnUtils,
   ...patchUtils,
   ...queryTunnelingUtils,
-  constants
+  ...constants,
+  ...encoderUtils,
+  decode,
+  paramDecode,
+  reducedDecode
 }

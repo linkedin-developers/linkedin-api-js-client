@@ -10,8 +10,6 @@ const PATCH = 'patch';
 /**
  * Pegasus/Restli diff generator - required for partial updates
  * https://github.com/linkedin/rest.li/wiki/Rest.li-Protocol#partial-update
- *
- * Ported from: https://linkedin.ghe.com/multiproduct/ember-ts-data-layer/blob/master/addon/utils/pegasus-diff-generator.js
  */
 
 /**

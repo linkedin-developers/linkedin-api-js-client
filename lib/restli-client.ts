@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from 'axios';
-import { constants } from './utils/constants';
+import { RESTLI_METHODS } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
-import { encode, paramEncode, getCreatedEntityId } from './utils/restli-utils';
+import { encode, paramEncode } from './utils/encoder';
+import { getCreatedEntityId } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
 import { maybeApplyQueryTunnelingToRequestsWithoutBody, maybeApplyQueryTunnelingToRequestsWithBody } from './utils/query-tunneling';
 import _ from 'lodash';
@@ -173,8 +174,8 @@ export interface LIGetAllResponse extends AxiosResponse {
 }
 
 export interface LICreateResponse extends AxiosResponse {
-  /** The created entity id */
-  createdEntityId: string | number
+  /** The decoded, created entity id */
+  createdEntityId: string | string[] | Record<string, string>
 }
 
 export interface LIBatchCreateResponse extends AxiosResponse {
@@ -305,7 +306,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath,
-      originalRestliMethod: constants.RESTLI_METHODS.GET,
+      originalRestliMethod: RESTLI_METHODS.GET,
       accessToken,
       versionString,
       additionalConfig
@@ -347,7 +348,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.BATCH_GET,
+      originalRestliMethod: RESTLI_METHODS.BATCH_GET,
       accessToken,
       versionString,
       additionalConfig
@@ -387,7 +388,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.GET_ALL,
+      originalRestliMethod: RESTLI_METHODS.GET_ALL,
       accessToken,
       versionString,
       additionalConfig
@@ -431,7 +432,7 @@ export class RestliClient {
         `${baseUrl}${resource}`,
       data: entity,
       headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.CREATE,
+        restliMethodType: RESTLI_METHODS.CREATE,
         accessToken,
         versionString
       })
@@ -440,7 +441,7 @@ export class RestliClient {
     const originalResponse = await this.axiosInstance.request(requestConfig);
     return {
       ...originalResponse,
-      createdEntityId: getCreatedEntityId(originalResponse)
+      createdEntityId: getCreatedEntityId(originalResponse, true)
     };
   }
 
@@ -490,7 +491,7 @@ export class RestliClient {
         elements: entities
       },
       headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.BATCH_CREATE,
+        restliMethodType: RESTLI_METHODS.BATCH_CREATE,
         accessToken,
         versionString
       })
@@ -560,7 +561,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
       urlPath,
-      originalRestliMethod: constants.RESTLI_METHODS.PARTIAL_UPDATE,
+      originalRestliMethod: RESTLI_METHODS.PARTIAL_UPDATE,
       originalJSONRequestBody: patchData,
       accessToken,
       versionString,
@@ -645,7 +646,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.BATCH_PARTIAL_UPDATE,
+      originalRestliMethod: RESTLI_METHODS.BATCH_PARTIAL_UPDATE,
       originalJSONRequestBody: {
         entities
       },
@@ -698,7 +699,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
       urlPath,
-      originalRestliMethod: constants.RESTLI_METHODS.UPDATE,
+      originalRestliMethod: RESTLI_METHODS.UPDATE,
       originalJSONRequestBody: entity,
       accessToken,
       versionString,
@@ -753,7 +754,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.BATCH_UPDATE,
+      originalRestliMethod: RESTLI_METHODS.BATCH_UPDATE,
       originalJSONRequestBody: {
         entities: entitiesObject
       },
@@ -795,7 +796,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath,
-      originalRestliMethod: constants.RESTLI_METHODS.DELETE,
+      originalRestliMethod: RESTLI_METHODS.DELETE,
       accessToken,
       versionString,
       additionalConfig
@@ -836,7 +837,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.BATCH_DELETE,
+      originalRestliMethod: RESTLI_METHODS.BATCH_DELETE,
       accessToken,
       versionString,
       additionalConfig
@@ -886,7 +887,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.FINDER,
+      originalRestliMethod: RESTLI_METHODS.FINDER,
       accessToken,
       versionString,
       additionalConfig
@@ -942,7 +943,7 @@ export class RestliClient {
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
       urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: constants.RESTLI_METHODS.BATCH_FINDER,
+      originalRestliMethod: RESTLI_METHODS.BATCH_FINDER,
       accessToken,
       versionString,
       additionalConfig
@@ -987,7 +988,7 @@ export class RestliClient {
       url: `${baseUrl}${resource}?${encodedQueryParamString}`,
       data,
       headers: getRestliRequestHeaders({
-        restliMethodType: constants.RESTLI_METHODS.ACTION,
+        restliMethodType: RESTLI_METHODS.ACTION,
         accessToken,
         versionString
       }), additionalConfig

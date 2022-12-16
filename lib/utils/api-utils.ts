@@ -1,7 +1,11 @@
-import { constants } from './constants';
+/**
+ * Utilities related to working with LinkedIn's APIs
+ */
+
+import { VERSIONED_BASE_URL, NON_VERSIONED_BASE_URL, HEADERS } from './constants';
 
 export function getRestApiBaseUrl(versionString) {
-  return versionString ? constants.VERSIONED_BASE_URL : constants.NON_VERSIONED_BASE_URL;
+  return versionString ? VERSIONED_BASE_URL : NON_VERSIONED_BASE_URL;
 };
 
 export function getRestliRequestHeaders({
@@ -12,17 +16,17 @@ export function getRestliRequestHeaders({
   contentType = 'application/json'
 }) {
   const headers = {
-    [constants.HEADERS.CONNECTION]: 'Keep-Alive',
-    [constants.HEADERS.RESTLI_PROTOCOL_VERSION]: '2.0.0',
-    [constants.HEADERS.RESTLI_METHOD]: restliMethodType.toLowerCase(),
-    [constants.HEADERS.AUTHORIZATION]: `Bearer ${accessToken}`,
-    [constants.HEADERS.CONTENT_TYPE]: contentType
+    [HEADERS.CONNECTION]: 'Keep-Alive',
+    [HEADERS.RESTLI_PROTOCOL_VERSION]: '2.0.0',
+    [HEADERS.RESTLI_METHOD]: restliMethodType.toLowerCase(),
+    [HEADERS.AUTHORIZATION]: `Bearer ${accessToken}`,
+    [HEADERS.CONTENT_TYPE]: contentType
   };
   if (versionString) {
-    headers[constants.HEADERS.LINKEDIN_VERSION] = versionString;
+    headers[HEADERS.LINKEDIN_VERSION] = versionString;
   }
   if (httpMethodOverride) {
-    headers[constants.HEADERS.HTTP_METHOD_OVERRIDE] = httpMethodOverride.toUpperCase();
+    headers[HEADERS.HTTP_METHOD_OVERRIDE] = httpMethodOverride.toUpperCase();
   }
   return headers;
 };

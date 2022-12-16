@@ -4,7 +4,12 @@
 
 import _ from 'lodash';
 import { getRestliRequestHeaders } from './api-utils';
-import { constants } from './constants';
+import {
+  HEADERS,
+  HTTP_METHODS,
+  CONTENT_TYPE,
+  RESTLI_METHOD_TO_HTTP_METHOD_MAP
+} from './constants';
 
 const MAX_QUERY_STRING_LENGTH = 4000; // 4KB max length
 
@@ -24,12 +29,12 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
 
   if (isQueryTunnelingRequired(encodedQueryParamString)) {
     requestConfig = _.merge({
-      method: constants.HTTP_METHODS.POST,
+      method: HTTP_METHODS.POST,
       url: urlPath,
       data: encodedQueryParamString,
       headers: getRestliRequestHeaders({
-        contentType: constants.CONTENT_TYPE.URL_ENCODED,
-        httpMethodOverride: constants.HTTP_METHODS.GET,
+        contentType: CONTENT_TYPE.URL_ENCODED,
+        httpMethodOverride: HTTP_METHODS.GET,
         restliMethodType: originalRestliMethod,
         accessToken,
         versionString
@@ -40,7 +45,7 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
       `${urlPath}?${encodedQueryParamString}` :
       urlPath;
     requestConfig = _.merge({
-      method: constants.RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
+      method: RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
       url,
       headers: getRestliRequestHeaders({
         restliMethodType: originalRestliMethod,
@@ -63,7 +68,7 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
   additionalConfig = {}
 }) {
   let requestConfig;
-  const originalHttpMethod = constants.RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
+  const originalHttpMethod = RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
 
   if (isQueryTunnelingRequired(encodedQueryParamString)) {
     /**
@@ -77,20 +82,20 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
 
     // Generate the multipart request body
     let multipartRequestBody = `--${boundary}\r\n` +
-      `${constants.HEADERS.CONTENT_TYPE}: ${constants.CONTENT_TYPE.URL_ENCODED}\r\n\r\n` +
+      `${HEADERS.CONTENT_TYPE}: ${CONTENT_TYPE.URL_ENCODED}\r\n\r\n` +
       `${encodedQueryParamString}\r\n` +
       `--${boundary}\r\n` +
-      `${constants.HEADERS.CONTENT_TYPE}: ${constants.CONTENT_TYPE.JSON}\r\n\r\n` +
+      `${HEADERS.CONTENT_TYPE}: ${CONTENT_TYPE.JSON}\r\n\r\n` +
       `${JSON.stringify(originalJSONRequestBody)}\r\n` +
       `--${boundary}--`
     ;
 
     requestConfig = _.merge({
-      method: constants.HTTP_METHODS.POST,
+      method: HTTP_METHODS.POST,
       url: urlPath,
       data: multipartRequestBody,
       headers: getRestliRequestHeaders({
-        contentType: constants.CONTENT_TYPE.MULTIPART_MIXED_WITH_BOUNDARY(boundary),
+        contentType: CONTENT_TYPE.MULTIPART_MIXED_WITH_BOUNDARY(boundary),
         httpMethodOverride: originalHttpMethod,
         restliMethodType: originalRestliMethod,
         accessToken,

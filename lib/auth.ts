@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { constants } from './utils/constants';
+import { HEADERS, CONTENT_TYPE, HTTP_METHODS, OAUTH_BASE_URL } from './utils/constants';
 import qs from 'qs';
 import { generateMemberAuthorizationUrl } from './utils/oauth-utils';
 
@@ -102,15 +102,15 @@ export class AuthClient {
    */
   async getTwoLeggedAccessToken() : Promise<AccessToken2LResponse> {
     const response = await axios.request({
-      method: constants.HTTP_METHODS.POST,
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
+      method: HTTP_METHODS.POST,
+      url: `${OAUTH_BASE_URL}/accessToken`,
       data: qs.stringify({
         grant_type: 'client_credentials',
         client_id: this.clientId,
         client_secret: this.clientSecret
       }),
       headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
+        [HEADERS.CONTENT_TYPE]: CONTENT_TYPE.URL_ENCODED
       }
     });
     return response.data;
@@ -148,8 +148,8 @@ export class AuthClient {
     code: string
   ): Promise<AccessToken3LResponse> {
     const response = await axios.request({
-      method: constants.HTTP_METHODS.POST,
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
+      method: HTTP_METHODS.POST,
+      url: `${OAUTH_BASE_URL}/accessToken`,
       data: {
         grant_type: 'authorization_code',
         code,
@@ -158,7 +158,7 @@ export class AuthClient {
         redirect_uri: this.redirectUrl
       },
       headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
+        [HEADERS.CONTENT_TYPE]: CONTENT_TYPE.URL_ENCODED
       }
     });
     return response.data;
@@ -176,8 +176,8 @@ export class AuthClient {
     refreshToken: string
   ): Promise<RefreshTokenExchangeResponse> {
     const response = await axios.request({
-      method: constants.HTTP_METHODS.POST,
-      url: `${constants.OAUTH_BASE_URL}/accessToken`,
+      method: HTTP_METHODS.POST,
+      url: `${OAUTH_BASE_URL}/accessToken`,
       data: {
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
@@ -185,7 +185,7 @@ export class AuthClient {
         client_secret: this.clientSecret
       },
       headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
+        [HEADERS.CONTENT_TYPE]: CONTENT_TYPE.URL_ENCODED
       }
     });
     return response.data;
@@ -202,15 +202,15 @@ export class AuthClient {
     accessToken: string
   ): Promise<IntrospectTokenResponse> {
     return await axios.request({
-      method: constants.HTTP_METHODS.POST,
-      url: `${constants.OAUTH_BASE_URL}/introspectToken`,
+      method: HTTP_METHODS.POST,
+      url: `${OAUTH_BASE_URL}/introspectToken`,
       data: {
         client_id: this.clientId,
         client_secret: this.clientSecret,
         token: accessToken
       },
       headers: {
-        [constants.HEADERS.CONTENT_TYPE]: constants.CONTENT_TYPE.URL_ENCODED
+        [HEADERS.CONTENT_TYPE]: CONTENT_TYPE.URL_ENCODED
       }
     });
   }

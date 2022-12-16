@@ -99,10 +99,6 @@ restliClient.get({
 ...
 ```
 
-### Running Samples
-
-
-
 ## API Client
 
 The API client defines instance methods for all the Rest.li methods which are used by LinkedIn APIs. Rest.li defines a standard set of methods that can operate on a resource, each of which maps to an HTTP method. Depending on the resource, some Rest.li methods are not applicable or not implemented. Read the API docs to determine what Rest.li method is applicable and the applicable request parameters.
@@ -773,20 +769,6 @@ Introspect a 2-legged, 3-legged or Enterprise access token to get information on
 | `tokenDetails.expires_at` | Number | Epoch time in seconds, indicating when this token will expire |
 | `tokenDetails.scope` | String | A string containing a comma-separated list of scopes associated with this token. This is only returned for 3-legged member tokens. |
 | `tokenDetails.status` | String | The token status, which is an enum string with values "revoked", "expired" or "active" |
-
-## Utilities
-
-### Methods
-
-#### `utils.paramEncode(queryParams)`
-
-#### `utils.encode(value)`
-
-#### `utils.createUrnFromAttrs()`
-
-#### `utils.getCreatedEntityId(response)`
-
-#### `utils.getPatchObject(original, modified)`
 
 ---
 
