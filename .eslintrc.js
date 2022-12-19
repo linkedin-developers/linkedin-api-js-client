@@ -15,15 +15,9 @@ module.exports = {
   },
   rules: {
     semi: ['error', 'always'],
-    'space-before-function-paren': ['error', 'never'],
     '@typescript-eslint/semi': ['error', 'always'],
-    '@typescript-eslint/space-before-function-paren': ['error', 'never'],
-    '@typescript-eslint/member-delimiter-style': ['error', {
-      multiline: {
-        delimiter: 'comma',
-        requireLast: false
-      }
-    }],
+    'space-before-function-paren': 'off',
+    '@typescript-eslint/space-before-function-paren': 'off',
     '@typescript-eslint/explicit-function-return-type': 'warn',
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',

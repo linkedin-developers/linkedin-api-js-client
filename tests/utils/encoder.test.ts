@@ -1,8 +1,4 @@
-import {
-  encode,
-  paramEncode,
-  reducedEncode
-} from '../../lib/utils/encoder';
+import { encode, paramEncode, reducedEncode } from '../../lib/utils/encoder';
 
 const example = {
   k1: 'v1',
@@ -56,10 +52,10 @@ describe('restli encode', () => {
   });
 
   test('throws an error when using invalid arguments to paramEncode', () => {
-    expect(function() {
+    expect(function () {
       paramEncode([] as any);
     }).toThrow();
-    expect(function() {
+    expect(function () {
       paramEncode(new Date() as any);
     }).toThrow();
   });

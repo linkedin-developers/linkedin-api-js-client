@@ -13,5 +13,7 @@ export function generateMemberAuthorizationUrl({
     state,
     scope: ''
   });
-  return `${OAUTH_BASE_URL}/authorization?${queryParams.toString()}${encodeURIComponent(scopes.join(' '))}`;
+  return `${OAUTH_BASE_URL}/authorization?${queryParams.toString()}${encodeURIComponent(
+    scopes.join(' ')
+  )}`;
 }

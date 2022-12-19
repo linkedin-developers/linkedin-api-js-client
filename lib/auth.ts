@@ -1,37 +1,42 @@
 import axios from 'axios';
-import { HEADERS, CONTENT_TYPE, HTTP_METHODS, OAUTH_BASE_URL } from './utils/constants';
+import {
+  HEADERS,
+  CONTENT_TYPE,
+  HTTP_METHODS,
+  OAUTH_BASE_URL
+} from './utils/constants';
 import qs from 'qs';
 import { generateMemberAuthorizationUrl } from './utils/oauth-utils';
 
 export interface AccessToken2LResponse {
   /** The two-legged access token */
-  access_token: string,
+  access_token: string;
   /** The TTL of the access token, in seconds */
-  expires_in: number
+  expires_in: number;
 }
 
 export interface RefreshTokenExchangeResponse {
   /** The 3-legged access token */
-  access_token: string,
+  access_token: string;
   /** The TTL for the access token, in seconds */
-  expires_in: number,
+  expires_in: number;
   /** The refresh token value */
-  refresh_token: string,
+  refresh_token: string;
   /** The TTL for the refresh token, in seconds */
-  refresh_token_expires_in: number
+  refresh_token_expires_in: number;
 }
 
 export interface AccessToken3LResponse {
   /** The 3-legged access token */
-  access_token: string,
+  access_token: string;
   /** The TTL for the access token, in seconds */
-  expires_in: number,
+  expires_in: number;
   /** The refresh token value */
-  refresh_token?: string,
+  refresh_token?: string;
   /** The TTL for the refresh token, in seconds */
-  refresh_token_expires_in?: number,
+  refresh_token_expires_in?: number;
   /** A comma-separated list of scopes authorized by the member (e.g. "r_liteprofile,r_ads") */
-  scope: string
+  scope: string;
 }
 
 enum TokenAuthType {
@@ -54,21 +59,21 @@ enum TokenStatus {
 
 export interface IntrospectTokenResponse {
   /** Flag whether the token is a valid, active token. */
-  active: boolean,
+  active: boolean;
   /** The auth type of the token */
-  auth_type: TokenAuthType,
+  auth_type: TokenAuthType;
   /** Epoch time in seconds, indicating when the token was authorized */
-  authorized_at?: number,
+  authorized_at?: number;
   /** Developer application client ID */
-  client_id?: string,
+  client_id?: string;
   /** Epoch time in seconds, indicating when this token was originally issued */
-  created_at: number,
+  created_at: number;
   /** Epoch time in seconds, indicating when this token will expire */
-  expires_at?: number,
+  expires_at?: number;
   /** A string containing a comma-separated list of scopes associated with this token. This is only returned for 3-legged member tokens. */
-  scope?: string,
+  scope?: string;
   /** The token status */
-  status?: TokenStatus
+  status?: TokenStatus;
 }
 
 /**
@@ -81,13 +86,13 @@ export class AuthClient {
 
   constructor(params: {
     /** The client ID of the developer application. */
-    clientId: string,
+    clientId: string;
     /** The client secret of the developer application. */
-    clientSecret: string,
+    clientSecret: string;
     /** The redirect URL. This URL is used in the authorization code flow (3-legged OAuth).
      * Users will be redirected to this URL after authorization. */
-    redirectUrl?: string }
-  ) {
+    redirectUrl?: string;
+  }) {
     this.clientId = params.clientId;
     this.clientSecret = params.clientSecret;
     this.redirectUrl = params.redirectUrl;

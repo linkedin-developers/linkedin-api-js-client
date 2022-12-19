@@ -63,10 +63,7 @@ describe('restli decode', () => {
     },
     {
       encodedString: 'List(%28v1%2C2%29,%28v2%2C2%29)',
-      decodedValue: [
-        '(v1,2)',
-        '(v2,2)'
-      ]
+      decodedValue: ['(v1,2)', '(v2,2)']
     },
     {
       encodedString: '',

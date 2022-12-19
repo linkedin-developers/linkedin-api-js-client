@@ -1,7 +1,7 @@
-const isString = val => typeof val === 'string';
-const isNumber = val => typeof val === 'number';
-const isBoolean = val => typeof val === 'boolean';
-const isObject = obj => typeof obj === 'object';
+const isString = (val) => typeof val === 'string';
+const isNumber = (val) => typeof val === 'number';
+const isBoolean = (val) => typeof val === 'boolean';
+const isObject = (obj) => typeof obj === 'object';
 
 const SET = '$set';
 const DELETE = '$delete';
@@ -167,7 +167,7 @@ function generateDiff(original, modified) {
 
   const oKeys = Object.keys(original);
 
-  oKeys.forEach(oKey => {
+  oKeys.forEach((oKey) => {
     oValue = original[oKey];
     mValue = modified[oKey];
 
@@ -185,7 +185,7 @@ function generateDiff(original, modified) {
 
   const mKeys = Object.keys(modified);
 
-  mKeys.forEach(mKey => {
+  mKeys.forEach((mKey) => {
     mValue = modified[mKey];
     oValue = original[mKey];
 

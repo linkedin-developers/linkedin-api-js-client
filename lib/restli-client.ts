@@ -1,10 +1,18 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  CreateAxiosDefaults
+} from 'axios';
 import { RESTLI_METHODS } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/encoder';
 import { getCreatedEntityId } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
-import { maybeApplyQueryTunnelingToRequestsWithoutBody, maybeApplyQueryTunnelingToRequestsWithBody } from './utils/query-tunneling';
+import {
+  maybeApplyQueryTunnelingToRequestsWithoutBody,
+  maybeApplyQueryTunnelingToRequestsWithBody
+} from './utils/query-tunneling';
 import _ from 'lodash';
 
 /**
@@ -13,15 +21,15 @@ import _ from 'lodash';
 
 export interface LIRestliRequestOptionsBase {
   /** The API resource name (e.g. "/adAccounts") */
-  resource: string,
+  resource: string;
   /** A map of query parameters, whose keys/values should not be encoded */
-  queryParams?: Record<string, any>,
+  queryParams?: Record<string, any>;
   /** The access token that should provide the application access to the specified API */
-  accessToken: string,
+  accessToken: string;
   /** optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL. */
-  versionString?: string,
+  versionString?: string;
   /** optional Axios request config object that will be merged into the request config. This will override any properties the client method sets, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the queryParams property for proper Rest.li encoding. */
-  additionalConfig?: AxiosRequestConfig
+  additionalConfig?: AxiosRequestConfig;
 }
 
 /**
@@ -44,11 +52,11 @@ export type EncodedEntityId = string | number;
  */
 export interface PagingObject {
   /** Start index of returned entities list (zero-based index) */
-  start: number,
+  start: number;
   /** Number of entities returned */
-  count: number,
+  count: number;
   /** Total number of entities */
-  total?: number
+  total?: number;
 }
 
 /**
@@ -57,87 +65,93 @@ export interface PagingObject {
 
 export interface LIGetRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to fetch. For simple resources, this should not be specified. */
-  id?: RestliEntityId
+  id?: RestliEntityId;
 }
 
 export interface LIBatchGetRequestOptions extends LIRestliRequestOptionsBase {
   /** The list of ids to fetch on the resource. */
-  ids: RestliEntityId[]
+  ids: RestliEntityId[];
 }
 
 export interface LIGetAllRequestOptions extends LIRestliRequestOptionsBase {}
 
 export interface LICreateRequestOptions extends LIRestliRequestOptionsBase {
   /** A JSON serialized value of the entity to create */
-  entity: RestliEntity
+  entity: RestliEntity;
 }
 
-export interface LIBatchCreateRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIBatchCreateRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** A list of JSON serialized entity values to create */
-  entities: RestliEntity[]
+  entities: RestliEntity[];
 }
 
-export interface LIPartialUpdateRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIPartialUpdateRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
-  id?: RestliEntityId,
+  id?: RestliEntityId;
   /** The JSON-serialized value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. */
-  patchSetObject?: RestliEntity,
+  patchSetObject?: RestliEntity;
   /** The JSON-serialized value of the original entity. If specified and patchSetObject is not provided, this will be used in conjunction with modifiedEntity to compute the patch object. */
-  originalEntity?: RestliEntity,
+  originalEntity?: RestliEntity;
   /** The JSON-serialized value of the modified entity. If specified and patchSetObject is not provided, this will be used in conjunction with originalEntity to compute the patch object. */
-  modifiedEntity?: RestliEntity
+  modifiedEntity?: RestliEntity;
 }
 
-export interface LIBatchPartialUpdateRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIBatchPartialUpdateRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** A list entity ids to update. */
-  ids: RestliEntityId[],
+  ids: RestliEntityId[];
   /** A list of JSON-serialized values of the entities with only the modified fields present. If specified, this will be directly sent as the patch object. */
-  patchSetObjects?: RestliEntity[],
+  patchSetObjects?: RestliEntity[];
   /** A list of JSON-serialized values of the original entities. If specified and patchSetObjects is not provided, this will be used in conjunction with modifiedEntities to compute patch object for each entity. */
-  originalEntities?: RestliEntity[],
+  originalEntities?: RestliEntity[];
   /** A list of JSON-serialized values of the modified entities. If specified and patchSetObjects is not provided, this will be used in conjunction with originalEntities to compute the patch object for each entity. */
-  modifiedEntities?: RestliEntity[]
+  modifiedEntities?: RestliEntity[];
 }
 
 export interface LIUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
-  id?: RestliEntityId,
+  id?: RestliEntityId;
   /** The JSON-serialized value of the entity with updated values. */
-  entity: RestliEntity
+  entity: RestliEntity;
 }
 
-export interface LIBatchUpdateRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIBatchUpdateRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** The list of entity ids to update. This should match with the corresponding entity object in the entities field. */
-  ids: RestliEntityId[],
+  ids: RestliEntityId[];
   /** The list of JSON-serialized values of entities with updated values. */
-  entities: RestliEntity[]
+  entities: RestliEntity[];
 }
 
 export interface LIDeleteRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to delete. For simple resources, this is not specified. */
-  id?: RestliEntityId
+  id?: RestliEntityId;
 }
 
-export interface LIBatchDeleteRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIBatchDeleteRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** A list of entity ids to delete. */
-  ids: RestliEntityId[]
+  ids: RestliEntityId[];
 }
 
 export interface LIFinderRequestOptions extends LIRestliRequestOptionsBase {
   /** The Rest.li finder name */
-  finderName: string
+  finderName: string;
 }
 
-export interface LIBatchFinderRequestOptions extends LIRestliRequestOptionsBase {
+export interface LIBatchFinderRequestOptions
+  extends LIRestliRequestOptionsBase {
   /** The Rest.li batch finder name */
-  batchFinderName: string
+  batchFinderName: string;
 }
 
 export interface LIActionRequestOptions extends LIRestliRequestOptionsBase {
   /** The Rest.li action name */
-  actionName: string,
+  actionName: string;
   /** The request body data to pass to the action. */
-  data?: Record<string, any>
+  data?: Record<string, any>;
 }
 
 /**
@@ -146,31 +160,31 @@ export interface LIActionRequestOptions extends LIRestliRequestOptionsBase {
 
 export interface LIGetResponse extends AxiosResponse {
   /** The entity that was fetched */
-  data: RestliEntity
+  data: RestliEntity;
 }
 
 export interface LIBatchGetResponse extends AxiosResponse {
   data: {
     /** A map containing entities that could not be successfully fetched and their associated error responses */
-    errors: Record<EncodedEntityId, any>,
+    errors: Record<EncodedEntityId, any>;
     /** A map of entities that were successfully retrieved */
-    results: Record<EncodedEntityId, RestliEntity>,
+    results: Record<EncodedEntityId, RestliEntity>;
     /** A map of entities and the corresponding status code */
-    statuses?: Record<EncodedEntityId, number>
-  }
+    statuses?: Record<EncodedEntityId, number>;
+  };
 }
 
 export interface LIGetAllResponse extends AxiosResponse {
   data: {
     /** List of entities */
-    elements: RestliEntity[],
-    paging?: PagingObject
-  }
+    elements: RestliEntity[];
+    paging?: PagingObject;
+  };
 }
 
 export interface LICreateResponse extends AxiosResponse {
   /** The decoded, created entity id */
-  createdEntityId: string | string[] | Record<string, string>
+  createdEntityId: string | string[] | Record<string, string>;
 }
 
 export interface LIBatchCreateResponse extends AxiosResponse {
@@ -178,13 +192,13 @@ export interface LIBatchCreateResponse extends AxiosResponse {
     /** A list of entity creation response data in the same order as the entities provided in the batch create request. */
     elements: Array<{
       /** The response status when creating the entity. */
-      status: number,
+      status: number;
       /** The id of the newly-created entity, if creation was successful. */
-      id?: string,
+      id?: string;
       /** Error details when creating an entity, if creation failed. */
-      error?: any
-    }>
-  }
+      error?: any;
+    }>;
+  };
 }
 
 export interface LIPartialUpdateResponse extends AxiosResponse {}
@@ -192,12 +206,15 @@ export interface LIPartialUpdateResponse extends AxiosResponse {}
 export interface LIBatchPartialUpdateResponse extends AxiosResponse {
   data: {
     /** A map of entities and their corresponding response status. */
-    results: Record<EncodedEntityId, {
-      status: number
-    }>,
+    results: Record<
+      EncodedEntityId,
+      {
+        status: number;
+      }
+    >;
     /** A map where the keys are the encoded entity ids that failed to be updated, and the values include the error response. */
-    errors: Record<EncodedEntityId, any>
-  }
+    errors: Record<EncodedEntityId, any>;
+  };
 }
 
 export interface LIUpdateResponse extends AxiosResponse {}
@@ -205,12 +222,15 @@ export interface LIUpdateResponse extends AxiosResponse {}
 export interface LIBatchUpdateResponse extends AxiosResponse {
   data: {
     /** A map where the keys are the encoded entity ids that were successfully updated, and the values are the update results, which include the status code. */
-    results: Record<EncodedEntityId, {
-      status: number
-    }>,
+    results: Record<
+      EncodedEntityId,
+      {
+        status: number;
+      }
+    >;
     /** A map where the keys are the encoded entity ids that failed to be updated, and the values include the error response. */
-    errors: Record<EncodedEntityId, any>
-  }
+    errors: Record<EncodedEntityId, any>;
+  };
 }
 
 export interface LIDeleteResponse extends AxiosResponse {}
@@ -218,20 +238,23 @@ export interface LIDeleteResponse extends AxiosResponse {}
 export interface LIBatchDeleteResponse extends AxiosResponse {
   data: {
     /** A map where the keys are the encoded entity ids that were successfully deleted, and the values are the delete results, which include the status code. */
-    results: Record<EncodedEntityId, {
-      status: number
-    }>,
+    results: Record<
+      EncodedEntityId,
+      {
+        status: number;
+      }
+    >;
     /** A map where the keys are the encoded entity ids that failed to be deleted, and the values include the error response. */
-    errors: Record<EncodedEntityId, any>
-  }
+    errors: Record<EncodedEntityId, any>;
+  };
 }
 
 export interface LIFinderResponse extends AxiosResponse {
   data: {
     /** An array of entities found based on the search criteria */
-    elements: RestliEntity[],
-    paging?: PagingObject
-  }
+    elements: RestliEntity[];
+    paging?: PagingObject;
+  };
 }
 
 export interface LIBatchFinderResponse extends AxiosResponse {
@@ -239,21 +262,21 @@ export interface LIBatchFinderResponse extends AxiosResponse {
     /** An array of finder search results in the same order as the array of search criteria provided to the batch finder. */
     elements: Array<{
       /** An array of entities found based on the corresponding search critieria. */
-      elements: RestliEntity[],
-      paging?: PagingObject,
-      metadata?: any,
-      error?: any,
+      elements: RestliEntity[];
+      paging?: PagingObject;
+      metadata?: any;
+      error?: any;
       /** Flag indicating whether the finder request encountered an error. */
-      isError?: boolean
-    }>
-  }
+      isError?: boolean;
+    }>;
+  };
 }
 
 export interface LIActionResponse extends AxiosResponse {
   data: {
     /** The action response value. */
-    value: boolean | string | number | Record<string, any>
-  }
+    value: boolean | string | number | Record<string, any>;
+  };
 }
 
 export class RestliClient {
@@ -295,7 +318,9 @@ export class RestliClient {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     // Simple resources do not have id
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = id
+      ? `${baseUrl}${resource}/${encode(id)}`
+      : `${baseUrl}${resource}`;
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
@@ -419,18 +444,21 @@ export class RestliClient {
   }: LICreateRequestOptions): Promise<LICreateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
-    const requestConfig = _.merge({
-      method: 'POST',
-      url: encodedQueryParamString
-        ? `${baseUrl}${resource}?${encodedQueryParamString}`
-        : `${baseUrl}${resource}`,
-      data: entity,
-      headers: getRestliRequestHeaders({
-        restliMethodType: RESTLI_METHODS.CREATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    const requestConfig = _.merge(
+      {
+        method: 'POST',
+        url: encodedQueryParamString
+          ? `${baseUrl}${resource}?${encodedQueryParamString}`
+          : `${baseUrl}${resource}`,
+        data: entity,
+        headers: getRestliRequestHeaders({
+          restliMethodType: RESTLI_METHODS.CREATE,
+          accessToken,
+          versionString
+        })
+      },
+      additionalConfig
+    );
 
     const originalResponse = await this.axiosInstance.request(requestConfig);
     return {
@@ -476,20 +504,23 @@ export class RestliClient {
   }: LIBatchCreateRequestOptions): Promise<LIBatchCreateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
-    const requestConfig = _.merge({
-      method: 'POST',
-      url: encodedQueryParamString
-        ? `${baseUrl}${resource}?${encodedQueryParamString}`
-        : `${baseUrl}${resource}`,
-      data: {
-        elements: entities
+    const requestConfig = _.merge(
+      {
+        method: 'POST',
+        url: encodedQueryParamString
+          ? `${baseUrl}${resource}?${encodedQueryParamString}`
+          : `${baseUrl}${resource}`,
+        data: {
+          elements: entities
+        },
+        headers: getRestliRequestHeaders({
+          restliMethodType: RESTLI_METHODS.BATCH_CREATE,
+          accessToken,
+          versionString
+        })
       },
-      headers: getRestliRequestHeaders({
-        restliMethodType: RESTLI_METHODS.BATCH_CREATE,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+      additionalConfig
+    );
     return await this.axiosInstance.request(requestConfig);
   }
 
@@ -534,22 +565,33 @@ export class RestliClient {
     additionalConfig = {}
   }: LIPartialUpdateRequestOptions): Promise<LIPartialUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = id
+      ? `${baseUrl}${resource}/${encode(id)}`
+      : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     let patchData;
     if (patchSetObject) {
-      if (typeof patchSetObject === 'object' && Object.keys(patchSetObject).length === 0) {
-        throw new Error('patchSetObject must be an object with at least one key-value pair');
+      if (
+        typeof patchSetObject === 'object' &&
+        Object.keys(patchSetObject).length === 0
+      ) {
+        throw new Error(
+          'patchSetObject must be an object with at least one key-value pair'
+        );
       }
       patchData = { patch: { $set: patchSetObject } };
     } else if (originalEntity && modifiedEntity) {
       patchData = getPatchObject(originalEntity, modifiedEntity);
       if (!patchData || Object.keys(patchData).length === 0) {
-        throw new Error('There must be a difference between originalEntity and modifiedEntity');
+        throw new Error(
+          'There must be a difference between originalEntity and modifiedEntity'
+        );
       }
     } else {
-      throw new Error('Either patchSetObject or originalEntity and modifiedEntity properties must be present');
+      throw new Error(
+        'Either patchSetObject or originalEntity and modifiedEntity properties must be present'
+      );
     }
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
@@ -605,14 +647,23 @@ export class RestliClient {
 
     if (patchSetObjects) {
       if (ids.length !== patchSetObjects.length) {
-        throw new Error('The fields { ids, patchSetObjects } must be arrays with the same length');
+        throw new Error(
+          'The fields { ids, patchSetObjects } must be arrays with the same length'
+        );
       }
     } else if (originalEntities && modifiedEntities) {
-      if (ids.length !== originalEntities.length && originalEntities.length !== modifiedEntities.length) {
-        throw new Error('The fields { ids, originalEntities, modifiedEntities } must be arrays with the same length');
+      if (
+        ids.length !== originalEntities.length &&
+        originalEntities.length !== modifiedEntities.length
+      ) {
+        throw new Error(
+          'The fields { ids, originalEntities, modifiedEntities } must be arrays with the same length'
+        );
       }
     } else {
-      throw new Error('Either { patchSetObjects } or { originalEntities, modifiedEntities } need to be provided as input parameters');
+      throw new Error(
+        'Either { patchSetObjects } or { originalEntities, modifiedEntities } need to be provided as input parameters'
+      );
     }
 
     const encodedQueryParamString = paramEncode({
@@ -632,7 +683,10 @@ export class RestliClient {
     } else {
       entities = ids.reduce((prev, curr, index) => {
         const encodedEntityId = encode(curr);
-        prev[encodedEntityId] = getPatchObject(originalEntities[index], modifiedEntities[index]);
+        prev[encodedEntityId] = getPatchObject(
+          originalEntities[index],
+          modifiedEntities[index]
+        );
         return prev;
       }, {});
     }
@@ -686,7 +740,9 @@ export class RestliClient {
     additionalConfig = {}
   }: LIUpdateRequestOptions): Promise<LIUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = id
+      ? `${baseUrl}${resource}/${encode(id)}`
+      : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
@@ -739,10 +795,13 @@ export class RestliClient {
       ...queryParams
     });
     // This as any[] workaround is due to this issue: https://github.com/microsoft/TypeScript/issues/36390
-    const entitiesObject = (ids as any[]).reduce((entitiesObject, currId, index) => {
-      entitiesObject[encode(currId)] = entities[index];
-      return entitiesObject;
-    }, {});
+    const entitiesObject = (ids as any[]).reduce(
+      (entitiesObject, currId, index) => {
+        entitiesObject[encode(currId)] = entities[index];
+        return entitiesObject;
+      },
+      {}
+    );
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
@@ -783,7 +842,9 @@ export class RestliClient {
     additionalConfig = {}
   }: LIDeleteRequestOptions): Promise<LIDeleteResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = id
+      ? `${baseUrl}${resource}/${encode(id)}`
+      : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({

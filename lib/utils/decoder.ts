@@ -75,7 +75,7 @@ export function paramDecode(
 ): Record<string, StringOrStringObject> {
   return querystring
     .split('&')
-    .reduce(function(
+    .reduce(function (
       previous: Record<string, StringOrStringObject>,
       current: string
     ) {
@@ -180,10 +180,7 @@ function decodeList(str: string, reduced = false): string[] {
  * @param {boolean} reduced
  * @returns {Object}
  */
-function decodeObject(
-  str: string,
-  reduced = false
-): Record<string, string> {
+function decodeObject(str: string, reduced = false): Record<string, string> {
   const retObj: Record<string, string> = {};
   let idx = 0;
   while (idx < str.length) {

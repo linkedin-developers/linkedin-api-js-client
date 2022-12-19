@@ -14,7 +14,10 @@ import {
 const MAX_QUERY_STRING_LENGTH = 4000; // 4KB max length
 
 export function isQueryTunnelingRequired(encodedQueryParamString: string) {
-  return encodedQueryParamString && encodedQueryParamString.length > MAX_QUERY_STRING_LENGTH;
+  return (
+    encodedQueryParamString &&
+    encodedQueryParamString.length > MAX_QUERY_STRING_LENGTH
+  );
 }
 
 export function maybeApplyQueryTunnelingToRequestsWithoutBody({
@@ -28,31 +31,37 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
   let requestConfig;
 
   if (isQueryTunnelingRequired(encodedQueryParamString)) {
-    requestConfig = _.merge({
-      method: HTTP_METHODS.POST,
-      url: urlPath,
-      data: encodedQueryParamString,
-      headers: getRestliRequestHeaders({
-        contentType: CONTENT_TYPE.URL_ENCODED,
-        httpMethodOverride: HTTP_METHODS.GET,
-        restliMethodType: originalRestliMethod,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    requestConfig = _.merge(
+      {
+        method: HTTP_METHODS.POST,
+        url: urlPath,
+        data: encodedQueryParamString,
+        headers: getRestliRequestHeaders({
+          contentType: CONTENT_TYPE.URL_ENCODED,
+          httpMethodOverride: HTTP_METHODS.GET,
+          restliMethodType: originalRestliMethod,
+          accessToken,
+          versionString
+        })
+      },
+      additionalConfig
+    );
   } else {
     const url = encodedQueryParamString
       ? `${urlPath}?${encodedQueryParamString}`
       : urlPath;
-    requestConfig = _.merge({
-      method: RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
-      url,
-      headers: getRestliRequestHeaders({
-        restliMethodType: originalRestliMethod,
-        accessToken,
-        versionString
-      })
-    }, additionalConfig);
+    requestConfig = _.merge(
+      {
+        method: RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
+        url,
+        headers: getRestliRequestHeaders({
+          restliMethodType: originalRestliMethod,
+          accessToken,
+          versionString
+        })
+      },
+      additionalConfig
+    );
   }
 
   return requestConfig;
@@ -68,28 +77,29 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
   additionalConfig = {}
 }) {
   let requestConfig;
-  const originalHttpMethod = RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
+  const originalHttpMethod =
+    RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
 
   if (isQueryTunnelingRequired(encodedQueryParamString)) {
     /**
      * Generate a boundary string that is not present at all in the raw request body
      */
     let boundary = generateRandomString();
-    const rawRequestBodyString = encodedQueryParamString + JSON.stringify(originalJSONRequestBody);
+    const rawRequestBodyString =
+      encodedQueryParamString + JSON.stringify(originalJSONRequestBody);
     while (rawRequestBodyString.includes(boundary)) {
       boundary = generateRandomString();
     }
 
     // Generate the multipart request body
-    const multipartRequestBody = `--${boundary}\r\n` +
+    const multipartRequestBody =
+      `--${boundary}\r\n` +
       `${HEADERS.CONTENT_TYPE}: ${CONTENT_TYPE.URL_ENCODED}\r\n\r\n` +
       `${encodedQueryParamString}\r\n` +
       `--${boundary}\r\n` +
       `${HEADERS.CONTENT_TYPE}: ${CONTENT_TYPE.JSON}\r\n\r\n` +
       `${JSON.stringify(originalJSONRequestBody)}\r\n` +
-      `--${boundary}--`
-    ;
-
+      `--${boundary}--`;
     requestConfig = _.merge({
       method: HTTP_METHODS.POST,
       url: urlPath,
@@ -108,16 +118,19 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
       ? `${urlPath}?${encodedQueryParamString}`
       : urlPath;
 
-    requestConfig = _.merge({
-      method: originalHttpMethod,
-      url,
-      headers: getRestliRequestHeaders({
-        restliMethodType: originalRestliMethod,
-        accessToken,
-        versionString
-      }),
-      data: originalJSONRequestBody
-    }, additionalConfig);
+    requestConfig = _.merge(
+      {
+        method: originalHttpMethod,
+        url,
+        headers: getRestliRequestHeaders({
+          restliMethodType: originalRestliMethod,
+          accessToken,
+          versionString
+        }),
+        data: originalJSONRequestBody
+      },
+      additionalConfig
+    );
   }
 
   return requestConfig;
