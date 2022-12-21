@@ -18,7 +18,5 @@ export function getCreatedEntityId(
   decode: boolean = true
 ): string | string[] | Record<string, string> {
   const reducedEncodedEntityId = response?.headers[HEADERS.CREATED_ENTITY_ID];
-  return decode
-    ? reducedDecode(reducedEncodedEntityId)
-    : reducedEncodedEntityId;
+  return decode ? reducedDecode(reducedEncodedEntityId) : reducedEncodedEntityId;
 }

@@ -16,8 +16,7 @@ export const HEADERS = {
 export const CONTENT_TYPE = {
   JSON: 'application/json',
   URL_ENCODED: 'application/x-www-form-urlencoded',
-  MULTIPART_MIXED_WITH_BOUNDARY: (boundary: string) =>
-    `multipart/mixed; boundary=${boundary}`
+  MULTIPART_MIXED_WITH_BOUNDARY: (boundary: string) => `multipart/mixed; boundary=${boundary}`
 };
 
 export const HTTP_METHODS = {

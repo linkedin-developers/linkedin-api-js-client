@@ -15,8 +15,15 @@ module.exports = {
   },
   rules: {
     semi: ['error', 'always'],
+    'no-unexpected-multiline': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     'space-before-function-paren': 'off',
+    '@typescript-eslint/member-delimiter-style': ['error', {
+      multiline: {
+        delimiter: 'semi',
+        requireLast: true
+      }
+    }],
     '@typescript-eslint/space-before-function-paren': 'off',
     '@typescript-eslint/explicit-function-return-type': 'warn',
     '@typescript-eslint/restrict-template-expressions': 'off',

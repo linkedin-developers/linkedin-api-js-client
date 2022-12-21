@@ -210,12 +210,9 @@ describe('RestliClient', () => {
       inputResponse: {
         data: {
           results: {
-            '(member:urn%3Ali%3Aperson%3A123,account:urn%3Ali%3Aaccount%3A234)':
-              { name: 'A' },
-            '(member:urn%3Ali%3Aperson%3A234,account:urn%3Ali%3Aaccount%3A345)':
-              { name: 'B' },
-            '(member:urn%3Ali%3Aperson%3A345,account:urn%3Ali%3Aaccount%3A456)':
-              { name: 'C' }
+            '(member:urn%3Ali%3Aperson%3A123,account:urn%3Ali%3Aaccount%3A234)': { name: 'A' },
+            '(member:urn%3Ali%3Aperson%3A234,account:urn%3Ali%3Aaccount%3A345)': { name: 'B' },
+            '(member:urn%3Ali%3Aperson%3A345,account:urn%3Ali%3Aaccount%3A456)': { name: 'C' }
           }
         },
         status: 200
@@ -663,10 +660,12 @@ describe('RestliClient', () => {
         path: '/testResource?ids=List((application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A321),(application:urn%3Ali%3AdeveloperApplication%3A789,member:urn%3Ali%3Amember%3A987))',
         body: {
           entities: {
-            '(application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A321)':
-              { name: 'foobar' },
-            '(application:urn%3Ali%3AdeveloperApplication%3A789,member:urn%3Ali%3Amember%3A987)':
-              { name: 'barbaz' }
+            '(application:urn%3Ali%3AdeveloperApplication%3A123,member:urn%3Ali%3Amember%3A321)': {
+              name: 'foobar'
+            },
+            '(application:urn%3Ali%3AdeveloperApplication%3A789,member:urn%3Ali%3Amember%3A987)': {
+              name: 'barbaz'
+            }
           }
         }
       }
@@ -874,9 +873,7 @@ describe('RestliClient', () => {
         }
       } else {
         // If expecting success response
-        const response = await restliClient[restliClientMethod](
-          inputRequestOptions
-        );
+        const response = await restliClient[restliClientMethod](inputRequestOptions);
         expect(response);
         expect(response.data).toStrictEqual(inputResponse.data);
         expect(response.status).toBe(inputResponse.status);

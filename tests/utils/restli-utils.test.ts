@@ -20,17 +20,12 @@ describe('restli-utils', () => {
       shouldDecode: false,
       expectedIdValue: 'urn%3Ali%3Atest%3Afoo bar'
     }
-  ])(
-    '$description',
-    ({ inputHeaderIdValue, shouldDecode, expectedIdValue }) => {
-      const inputResponse: any = {
-        headers: {
-          'x-restli-id': inputHeaderIdValue
-        }
-      };
-      expect(getCreatedEntityId(inputResponse, shouldDecode)).toBe(
-        expectedIdValue
-      );
-    }
-  );
+  ])('$description', ({ inputHeaderIdValue, shouldDecode, expectedIdValue }) => {
+    const inputResponse: any = {
+      headers: {
+        'x-restli-id': inputHeaderIdValue
+      }
+    };
+    expect(getCreatedEntityId(inputResponse, shouldDecode)).toBe(expectedIdValue);
+  });
 });

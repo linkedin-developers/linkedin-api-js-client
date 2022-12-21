@@ -15,10 +15,7 @@ type JSONBlob = Record<string, TypeOrArrayOrRecord<PrimitiveOrNullOrUndefined>>;
  * Check if a parameter is object-like, assert via TS and throw Error if not object-like
  * @param json - unknown parameter to be checked
  */
-function assertIsObjectNotArray(
-  json: unknown,
-  errorMessage: string
-): asserts json is JSONBlob {
+function assertIsObjectNotArray(json: unknown, errorMessage: string): asserts json is JSONBlob {
   if (Array.isArray(json) || typeof json !== 'object' || json === null) {
     throw new Error(errorMessage);
   }
@@ -59,23 +56,15 @@ export function paramEncode(json: unknown): string {
 
   const parsedJson: unknown = JSON.parse(JSON.stringify(json));
 
-  assertIsObjectNotArray(
-    parsedJson,
-    'You must pass an object to the paramEncode function.'
-  );
+  assertIsObjectNotArray(parsedJson, 'You must pass an object to the paramEncode function.');
 
   const query = Object.keys(parsedJson).map((property) => {
-    return `${encodePrimitive(property)}=${encodeAnyType(
-      parsedJson[property],
-      false
-    )}`;
+    return `${encodePrimitive(property)}=${encodeAnyType(parsedJson[property], false)}`;
   });
   return query.join('&');
 }
 
-function isRecord(
-  value: JSONBlob | PrimitiveOrNullOrUndefined
-): value is JSONBlob {
+function isRecord(value: JSONBlob | PrimitiveOrNullOrUndefined): value is JSONBlob {
   return typeof value === 'object' && value !== null;
 }
 
@@ -111,10 +100,7 @@ function encodeAnyType(
 /**
  * Escapes an array.
  */
-function encodeArray(
-  value: PrimitiveOrNullOrUndefined[],
-  reduced: boolean
-): string {
+function encodeArray(value: PrimitiveOrNullOrUndefined[], reduced: boolean): string {
   const nested = new Array(value.length);
   for (let i = 0; i < value.length; i++) {
     nested[i] = encodeAnyType(value[i], reduced);
@@ -127,10 +113,7 @@ function encodeArray(
  */
 function encodeObject(value: JSONBlob, reduced: boolean): string {
   const nested = Object.keys(value).map((property) => {
-    return `${encodePrimitive(property, reduced)}:${encodeAnyType(
-      value[property],
-      reduced
-    )}`;
+    return `${encodePrimitive(property, reduced)}:${encodeAnyType(value[property], reduced)}`;
   });
   return `${OBJ_PREFIX}${nested.join(',')}${OBJ_SUFFIX}`;
 }

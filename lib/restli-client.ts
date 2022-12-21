@@ -80,14 +80,12 @@ export interface LICreateRequestOptions extends LIRestliRequestOptionsBase {
   entity: RestliEntity;
 }
 
-export interface LIBatchCreateRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIBatchCreateRequestOptions extends LIRestliRequestOptionsBase {
   /** A list of JSON serialized entity values to create */
   entities: RestliEntity[];
 }
 
-export interface LIPartialUpdateRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIPartialUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
   id?: RestliEntityId;
   /** The JSON-serialized value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. */
@@ -98,8 +96,7 @@ export interface LIPartialUpdateRequestOptions
   modifiedEntity?: RestliEntity;
 }
 
-export interface LIBatchPartialUpdateRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIBatchPartialUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** A list entity ids to update. */
   ids: RestliEntityId[];
   /** A list of JSON-serialized values of the entities with only the modified fields present. If specified, this will be directly sent as the patch object. */
@@ -117,8 +114,7 @@ export interface LIUpdateRequestOptions extends LIRestliRequestOptionsBase {
   entity: RestliEntity;
 }
 
-export interface LIBatchUpdateRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIBatchUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The list of entity ids to update. This should match with the corresponding entity object in the entities field. */
   ids: RestliEntityId[];
   /** The list of JSON-serialized values of entities with updated values. */
@@ -130,8 +126,7 @@ export interface LIDeleteRequestOptions extends LIRestliRequestOptionsBase {
   id?: RestliEntityId;
 }
 
-export interface LIBatchDeleteRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIBatchDeleteRequestOptions extends LIRestliRequestOptionsBase {
   /** A list of entity ids to delete. */
   ids: RestliEntityId[];
 }
@@ -141,8 +136,7 @@ export interface LIFinderRequestOptions extends LIRestliRequestOptionsBase {
   finderName: string;
 }
 
-export interface LIBatchFinderRequestOptions
-  extends LIRestliRequestOptionsBase {
+export interface LIBatchFinderRequestOptions extends LIRestliRequestOptionsBase {
   /** The Rest.li batch finder name */
   batchFinderName: string;
 }
@@ -318,9 +312,7 @@ export class RestliClient {
     const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     // Simple resources do not have id
-    const urlPath = id
-      ? `${baseUrl}${resource}/${encode(id)}`
-      : `${baseUrl}${resource}`;
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
@@ -565,28 +557,19 @@ export class RestliClient {
     additionalConfig = {}
   }: LIPartialUpdateRequestOptions): Promise<LIPartialUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id
-      ? `${baseUrl}${resource}/${encode(id)}`
-      : `${baseUrl}${resource}`;
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     let patchData;
     if (patchSetObject) {
-      if (
-        typeof patchSetObject === 'object' &&
-        Object.keys(patchSetObject).length === 0
-      ) {
-        throw new Error(
-          'patchSetObject must be an object with at least one key-value pair'
-        );
+      if (typeof patchSetObject === 'object' && Object.keys(patchSetObject).length === 0) {
+        throw new Error('patchSetObject must be an object with at least one key-value pair');
       }
       patchData = { patch: { $set: patchSetObject } };
     } else if (originalEntity && modifiedEntity) {
       patchData = getPatchObject(originalEntity, modifiedEntity);
       if (!patchData || Object.keys(patchData).length === 0) {
-        throw new Error(
-          'There must be a difference between originalEntity and modifiedEntity'
-        );
+        throw new Error('There must be a difference between originalEntity and modifiedEntity');
       }
     } else {
       throw new Error(
@@ -647,9 +630,7 @@ export class RestliClient {
 
     if (patchSetObjects) {
       if (ids.length !== patchSetObjects.length) {
-        throw new Error(
-          'The fields { ids, patchSetObjects } must be arrays with the same length'
-        );
+        throw new Error('The fields { ids, patchSetObjects } must be arrays with the same length');
       }
     } else if (originalEntities && modifiedEntities) {
       if (
@@ -683,10 +664,7 @@ export class RestliClient {
     } else {
       entities = ids.reduce((prev, curr, index) => {
         const encodedEntityId = encode(curr);
-        prev[encodedEntityId] = getPatchObject(
-          originalEntities[index],
-          modifiedEntities[index]
-        );
+        prev[encodedEntityId] = getPatchObject(originalEntities[index], modifiedEntities[index]);
         return prev;
       }, {});
     }
@@ -740,9 +718,7 @@ export class RestliClient {
     additionalConfig = {}
   }: LIUpdateRequestOptions): Promise<LIUpdateResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id
-      ? `${baseUrl}${resource}/${encode(id)}`
-      : `${baseUrl}${resource}`;
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
@@ -795,13 +771,10 @@ export class RestliClient {
       ...queryParams
     });
     // This as any[] workaround is due to this issue: https://github.com/microsoft/TypeScript/issues/36390
-    const entitiesObject = (ids as any[]).reduce(
-      (entitiesObject, currId, index) => {
-        entitiesObject[encode(currId)] = entities[index];
-        return entitiesObject;
-      },
-      {}
-    );
+    const entitiesObject = (ids as any[]).reduce((entitiesObject, currId, index) => {
+      entitiesObject[encode(currId)] = entities[index];
+      return entitiesObject;
+    }, {});
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
@@ -842,9 +815,7 @@ export class RestliClient {
     additionalConfig = {}
   }: LIDeleteRequestOptions): Promise<LIDeleteResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id
-      ? `${baseUrl}${resource}/${encode(id)}`
-      : `${baseUrl}${resource}`;
+    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({

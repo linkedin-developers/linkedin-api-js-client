@@ -4,20 +4,12 @@
 
 import _ from 'lodash';
 import { getRestliRequestHeaders } from './api-utils';
-import {
-  HEADERS,
-  HTTP_METHODS,
-  CONTENT_TYPE,
-  RESTLI_METHOD_TO_HTTP_METHOD_MAP
-} from './constants';
+import { HEADERS, HTTP_METHODS, CONTENT_TYPE, RESTLI_METHOD_TO_HTTP_METHOD_MAP } from './constants';
 
 const MAX_QUERY_STRING_LENGTH = 4000; // 4KB max length
 
 export function isQueryTunnelingRequired(encodedQueryParamString: string) {
-  return (
-    encodedQueryParamString &&
-    encodedQueryParamString.length > MAX_QUERY_STRING_LENGTH
-  );
+  return encodedQueryParamString && encodedQueryParamString.length > MAX_QUERY_STRING_LENGTH;
 }
 
 export function maybeApplyQueryTunnelingToRequestsWithoutBody({
@@ -47,9 +39,7 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
       additionalConfig
     );
   } else {
-    const url = encodedQueryParamString
-      ? `${urlPath}?${encodedQueryParamString}`
-      : urlPath;
+    const url = encodedQueryParamString ? `${urlPath}?${encodedQueryParamString}` : urlPath;
     requestConfig = _.merge(
       {
         method: RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod],
@@ -77,16 +67,14 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
   additionalConfig = {}
 }) {
   let requestConfig;
-  const originalHttpMethod =
-    RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
+  const originalHttpMethod = RESTLI_METHOD_TO_HTTP_METHOD_MAP[originalRestliMethod];
 
   if (isQueryTunnelingRequired(encodedQueryParamString)) {
     /**
      * Generate a boundary string that is not present at all in the raw request body
      */
     let boundary = generateRandomString();
-    const rawRequestBodyString =
-      encodedQueryParamString + JSON.stringify(originalJSONRequestBody);
+    const rawRequestBodyString = encodedQueryParamString + JSON.stringify(originalJSONRequestBody);
     while (rawRequestBodyString.includes(boundary)) {
       boundary = generateRandomString();
     }
@@ -114,9 +102,7 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
       additionalConfig
     });
   } else {
-    const url = encodedQueryParamString
-      ? `${urlPath}?${encodedQueryParamString}`
-      : urlPath;
+    const url = encodedQueryParamString ? `${urlPath}?${encodedQueryParamString}` : urlPath;
 
     requestConfig = _.merge(
       {

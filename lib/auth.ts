@@ -1,10 +1,5 @@
 import axios from 'axios';
-import {
-  HEADERS,
-  CONTENT_TYPE,
-  HTTP_METHODS,
-  OAUTH_BASE_URL
-} from './utils/constants';
+import { HEADERS, CONTENT_TYPE, HTTP_METHODS, OAUTH_BASE_URL } from './utils/constants';
 import qs from 'qs';
 import { generateMemberAuthorizationUrl } from './utils/oauth-utils';
 

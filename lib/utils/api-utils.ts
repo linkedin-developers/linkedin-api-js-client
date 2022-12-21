@@ -2,11 +2,7 @@
  * Utilities related to working with LinkedIn's APIs
  */
 
-import {
-  VERSIONED_BASE_URL,
-  NON_VERSIONED_BASE_URL,
-  HEADERS
-} from './constants';
+import { VERSIONED_BASE_URL, NON_VERSIONED_BASE_URL, HEADERS } from './constants';
 
 export function getRestApiBaseUrl(versionString) {
   return versionString ? VERSIONED_BASE_URL : NON_VERSIONED_BASE_URL;

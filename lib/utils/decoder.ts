@@ -27,9 +27,7 @@ function strStartsWith(str: string, search: string, pos = 0): boolean {
  */
 function validateSuffix(serializedrestli: string, suffix: string): void {
   if (serializedrestli[serializedrestli.length - 1] !== suffix) {
-    throw new Error(
-      `Input has unbalanced prefix and suffix: ${serializedrestli}`
-    );
+    throw new Error(`Input has unbalanced prefix and suffix: ${serializedrestli}`);
   }
 }
 
@@ -70,15 +68,10 @@ function restliUnescape(value: string, reduced: boolean): string {
   return value === undefined || value === "''" ? '' : value;
 }
 
-export function paramDecode(
-  querystring: string
-): Record<string, StringOrStringObject> {
+export function paramDecode(querystring: string): Record<string, StringOrStringObject> {
   return querystring
     .split('&')
-    .reduce(function (
-      previous: Record<string, StringOrStringObject>,
-      current: string
-    ) {
+    .reduce(function (previous: Record<string, StringOrStringObject>, current: string) {
       // Short circuit if there isn't a key.
       if (!current.length) {
         return previous;
@@ -99,8 +92,7 @@ export function paramDecode(
 
       previous[decodeURIComponent(key)] = decode(value);
       return previous;
-    },
-    {});
+    }, {});
 }
 
 /**
@@ -129,16 +121,10 @@ function internalDecode(
   }
   if (strStartsWith(serializedrestli, LIST_PREFIX)) {
     validateSuffix(serializedrestli, LIST_SUFFIX);
-    return decodeList(
-      serializedrestli.substring(5, serializedrestli.length - 1),
-      reduced
-    );
+    return decodeList(serializedrestli.substring(5, serializedrestli.length - 1), reduced);
   } else if (strStartsWith(serializedrestli, OBJ_PREFIX)) {
     validateSuffix(serializedrestli, OBJ_SUFFIX);
-    return decodeObject(
-      serializedrestli.substring(1, serializedrestli.length - 1),
-      reduced
-    );
+    return decodeObject(serializedrestli.substring(1, serializedrestli.length - 1), reduced);
   } else {
     return restliUnescape(serializedrestli, reduced);
   }
@@ -153,16 +139,10 @@ function decodeList(str: string, reduced = false): string[] {
   const retList = [];
   let idx = 0;
   while (idx < str.length) {
-    if (
-      strStartsWith(str, LIST_PREFIX, idx) ||
-      strStartsWith(str, OBJ_PREFIX, idx)
-    ) {
+    if (strStartsWith(str, LIST_PREFIX, idx) || strStartsWith(str, OBJ_PREFIX, idx)) {
       const rightBracketIdx = findLastRightBracket(str, idx);
       retList.push(
-        internalDecode(
-          str.substring(idx, rightBracketIdx + 1),
-          reduced
-        ) as string // TODO type overload _decode so we don't need this cast
+        internalDecode(str.substring(idx, rightBracketIdx + 1), reduced) as string // TODO type overload _decode so we don't need this cast
       );
       idx = rightBracketIdx + 2; // skip the next comma
       continue;
@@ -189,10 +169,7 @@ function decodeObject(str: string, reduced = false): Record<string, string> {
     idx = colonIdx + 1;
     if (str.startsWith(LIST_PREFIX, idx) || str.startsWith(OBJ_PREFIX, idx)) {
       const rightBracketIdx = findLastRightBracket(str, idx);
-      retObj[key] = internalDecode(
-        str.substring(idx, rightBracketIdx + 1),
-        reduced
-      ) as string; // TODO type overload _decode so we don't need this cast
+      retObj[key] = internalDecode(str.substring(idx, rightBracketIdx + 1), reduced) as string; // TODO type overload _decode so we don't need this cast
       idx = rightBracketIdx + 2; // skip the next comma
       continue;
     }
