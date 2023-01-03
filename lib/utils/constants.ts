@@ -10,7 +10,8 @@ export const HEADERS = {
   CREATED_ENTITY_ID: 'x-restli-id',
   HTTP_METHOD_OVERRIDE: 'X-HTTP-Method-Override',
   LINKEDIN_VERSION: 'LinkedIn-Version',
-  AUTHORIZATION: 'Authorization'
+  AUTHORIZATION: 'Authorization',
+  USER_AGENT: 'user-agent'
 };
 
 export const CONTENT_TYPE = {

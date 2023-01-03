@@ -9,7 +9,8 @@
     "outDir": "dist",
     "strict": false,
     "declaration": true,
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": [
     "lib",

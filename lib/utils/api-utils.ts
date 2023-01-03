@@ -3,8 +3,9 @@
  */
 
 import { VERSIONED_BASE_URL, NON_VERSIONED_BASE_URL, HEADERS } from './constants';
+import { version } from '../../package.json';
 
-export function getRestApiBaseUrl(versionString) {
+export function getRestApiBaseUrl(versionString = null) {
   return versionString ? VERSIONED_BASE_URL : NON_VERSIONED_BASE_URL;
 }
 
@@ -20,7 +21,8 @@ export function getRestliRequestHeaders({
     [HEADERS.RESTLI_PROTOCOL_VERSION]: '2.0.0',
     [HEADERS.RESTLI_METHOD]: restliMethodType.toLowerCase(),
     [HEADERS.AUTHORIZATION]: `Bearer ${accessToken}`,
-    [HEADERS.CONTENT_TYPE]: contentType
+    [HEADERS.CONTENT_TYPE]: contentType,
+    [HEADERS.USER_AGENT]: `linkedin-api-js-client/${version}`
   };
   if (versionString) {
     headers[HEADERS.LINKEDIN_VERSION] = versionString;
