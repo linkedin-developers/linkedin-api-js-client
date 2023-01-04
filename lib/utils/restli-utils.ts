@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { reducedDecode } from './decoder';
+import { paramEncode } from './encoder';
 
 /**
  * Miscellaneous Rest.li Utils
@@ -19,4 +20,21 @@ export function getCreatedEntityId(
 ): string | string[] | Record<string, string> {
   const reducedEncodedEntityId = response?.headers[HEADERS.CREATED_ENTITY_ID];
   return decode ? reducedDecode(reducedEncodedEntityId) : reducedEncodedEntityId;
+}
+
+/**
+ * This wrapper function on top of encoder.paramEncode is needed specifically to handle the
+ * "fields" query parameter for field projections. Although Rest.li protocol version 2.0.0 should
+ * have supported a query param string like "?fields=List(id,firstName,lastName)" it still requires
+ * the Rest.li protocol version 1.0.0 format of "?fields=id,firstName,lastName". Thus, if "fields"
+ * is provided as a query parameter for HTTP GET requests, it should not be encoded like all the other
+ * parameters.
+ */
+export function encodeQueryParamsForGetRequests(queryParams: Record<string, any>): string {
+  const { fields, ...otherQueryParams } = queryParams;
+  let encodedQueryParamString = paramEncode(otherQueryParams);
+  if (fields) {
+    encodedQueryParamString = [encodedQueryParamString, `fields=${fields}`].join('&');
+  }
+  return encodedQueryParamString;
 }

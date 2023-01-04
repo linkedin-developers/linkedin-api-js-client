@@ -7,7 +7,7 @@ import axios, {
 import { RESTLI_METHODS } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/encoder';
-import { getCreatedEntityId } from './utils/restli-utils';
+import { getCreatedEntityId, encodeQueryParamsForGetRequests } from './utils/restli-utils';
 import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
 import {
   maybeApplyQueryTunnelingToRequestsWithoutBody,
@@ -28,7 +28,7 @@ export interface LIRestliRequestOptionsBase {
   /** The access token that should provide the application access to the specified API */
   accessToken: string;
   /** optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL. */
-  versionString?: string;
+  versionString?: string | null;
   /** optional Axios request config object that will be merged into the request config. This will override any properties the client method sets, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the queryParams property for proper Rest.li encoding. */
   additionalConfig?: AxiosRequestConfig;
 }
@@ -66,7 +66,7 @@ export interface PagingObject {
 
 export interface LIGetRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to fetch. For simple resources, this should not be specified. */
-  id?: RestliEntityId;
+  id?: RestliEntityId | null;
 }
 
 export interface LIBatchGetRequestOptions extends LIRestliRequestOptionsBase {
@@ -88,7 +88,7 @@ export interface LIBatchCreateRequestOptions extends LIRestliRequestOptionsBase 
 
 export interface LIPartialUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
-  id?: RestliEntityId;
+  id?: RestliEntityId | null;
   /** The JSON-serialized value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. */
   patchSetObject?: RestliEntity;
   /** The JSON-serialized value of the original entity. If specified and patchSetObject is not provided, this will be used in conjunction with modifiedEntity to compute the patch object. */
@@ -110,7 +110,7 @@ export interface LIBatchPartialUpdateRequestOptions extends LIRestliRequestOptio
 
 export interface LIUpdateRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to update. For simple resources, this is not specified. */
-  id?: RestliEntityId;
+  id?: RestliEntityId | null;
   /** The JSON-serialized value of the entity with updated values. */
   entity: RestliEntity;
 }
@@ -124,7 +124,7 @@ export interface LIBatchUpdateRequestOptions extends LIRestliRequestOptionsBase 
 
 export interface LIDeleteRequestOptions extends LIRestliRequestOptionsBase {
   /** The id or key of the entity to delete. For simple resources, this is not specified. */
-  id?: RestliEntityId;
+  id?: RestliEntityId | null;
 }
 
 export interface LIBatchDeleteRequestOptions extends LIRestliRequestOptionsBase {
@@ -146,7 +146,7 @@ export interface LIActionRequestOptions extends LIRestliRequestOptionsBase {
   /** The Rest.li action name */
   actionName: string;
   /** The request body data to pass to the action. */
-  data?: Record<string, any>;
+  data?: Record<string, any> | null;
 }
 
 /**
@@ -306,7 +306,7 @@ export class RestliClient {
     enabled = false,
     /** Flag whether to log successful responses */
     logSuccessResponses = false
-  }) {
+  }): void {
     this.#debugEnabled = enabled;
     this.#logSuccessResponses = logSuccessResponses;
   }
@@ -335,13 +335,13 @@ export class RestliClient {
   async get({
     resource,
     id = null,
-    queryParams,
-    versionString,
+    queryParams = {},
+    versionString = null,
     accessToken,
-    additionalConfig
+    additionalConfig = {}
   }: LIGetRequestOptions): Promise<LIGetResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = paramEncode(queryParams);
+    const encodedQueryParamString = encodeQueryParamsForGetRequests(queryParams);
     // Simple resources do not have id
     const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
 
@@ -376,13 +376,13 @@ export class RestliClient {
   async batchGet({
     resource,
     ids,
-    queryParams,
-    versionString,
+    queryParams = {},
+    versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchGetRequestOptions): Promise<LIBatchGetResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = paramEncode({
+    const encodedQueryParamString = encodeQueryParamsForGetRequests({
       ids,
       ...queryParams
     });
@@ -419,13 +419,13 @@ export class RestliClient {
    */
   async getAll({
     resource,
-    queryParams,
-    versionString,
+    queryParams = {},
+    versionString = null,
     accessToken,
-    additionalConfig
+    additionalConfig = {}
   }: LIGetAllRequestOptions): Promise<LIGetAllResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = paramEncode(queryParams);
+    const encodedQueryParamString = encodeQueryParamsForGetRequests(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
@@ -460,7 +460,7 @@ export class RestliClient {
   async create({
     resource,
     entity,
-    queryParams,
+    queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
@@ -520,8 +520,8 @@ export class RestliClient {
   async batchCreate({
     resource,
     entities,
-    queryParams,
-    versionString,
+    queryParams = {},
+    versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchCreateRequestOptions): Promise<LIBatchCreateResponse> {
@@ -582,7 +582,7 @@ export class RestliClient {
     patchSetObject,
     originalEntity,
     modifiedEntity,
-    queryParams,
+    queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
@@ -652,7 +652,7 @@ export class RestliClient {
     originalEntities,
     modifiedEntities,
     patchSetObjects,
-    queryParams,
+    queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
@@ -692,7 +692,7 @@ export class RestliClient {
         };
         return prev;
       }, {});
-    } else {
+    } else if (originalEntities && modifiedEntities) {
       entities = ids.reduce((prev, curr, index) => {
         const encodedEntityId = encode(curr);
         prev[encodedEntityId] = getPatchObject(originalEntities[index], modifiedEntities[index]);
@@ -743,7 +743,7 @@ export class RestliClient {
     resource,
     id = null,
     entity,
-    queryParams,
+    queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
@@ -791,7 +791,7 @@ export class RestliClient {
     resource,
     ids,
     entities,
-    queryParams,
+    queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
@@ -935,7 +935,7 @@ export class RestliClient {
     additionalConfig = {}
   }: LIFinderRequestOptions): Promise<LIFinderResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = paramEncode({
+    const encodedQueryParamString = encodeQueryParamsForGetRequests({
       q: finderName,
       ...queryParams
     });
@@ -991,7 +991,7 @@ export class RestliClient {
     additionalConfig = {}
   }: LIBatchFinderRequestOptions): Promise<LIBatchFinderResponse> {
     const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = paramEncode({
+    const encodedQueryParamString = encodeQueryParamsForGetRequests({
       bq: batchFinderName,
       ...queryParams
     });

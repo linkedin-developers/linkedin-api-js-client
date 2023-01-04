@@ -17,7 +17,7 @@ export function maybeApplyQueryTunnelingToRequestsWithoutBody({
   urlPath,
   originalRestliMethod,
   accessToken,
-  versionString = null,
+  versionString,
   additionalConfig = {}
 }) {
   let requestConfig;
@@ -63,7 +63,7 @@ export function maybeApplyQueryTunnelingToRequestsWithBody({
   originalRestliMethod,
   originalJSONRequestBody,
   accessToken,
-  versionString = null,
+  versionString,
   additionalConfig = {}
 }) {
   let requestConfig;
