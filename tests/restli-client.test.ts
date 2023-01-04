@@ -33,8 +33,6 @@ describe('RestliClient', () => {
   /**
    * Tests for basic functionality of RestliClient methods, providing the
    * input request options and method type and expected response.
-   *
-   * Test will assert
    */
   test.each([
     /**
@@ -880,4 +878,54 @@ describe('RestliClient', () => {
       }
     }
   );
+
+  test('setDebugParams', async () => {
+    const logMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const errorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+    nock('https://api.linkedin.com/v2').get('/test').reply(200, 'success');
+
+    const restliClient = new RestliClient();
+
+    // Test initial state where logging is disabled
+    await restliClient.get({
+      resource: '/test',
+      accessToken: 'ABC123'
+    });
+
+    expect(logMock).not.toHaveBeenCalled();
+    expect(errorMock).not.toHaveBeenCalled();
+
+    // Now enable logging of all requests and check that successful requests are logged
+    logMock.mockClear();
+    errorMock.mockClear();
+    nock('https://api.linkedin.com/v2').get('/test').reply(200, 'success');
+    restliClient.setDebugParams({ enabled: true, logSuccessResponses: true });
+
+    await restliClient.get({
+      resource: '/test',
+      accessToken: 'ABC123'
+    });
+
+    expect(logMock).toHaveBeenCalled();
+    expect(errorMock).not.toHaveBeenCalled();
+
+    // Now check that error requests are logged
+    logMock.mockClear();
+    errorMock.mockClear();
+    nock('https://api.linkedin.com/v2').get('/test').reply(500, 'error');
+
+    try {
+      await restliClient.get({
+        resource: '/test',
+        accessToken: 'ABC123'
+      });
+      fail('RestliClient should have thrown an error.');
+    } catch (error) {
+      expect(logMock).not.toHaveBeenCalled();
+      expect(errorMock).toHaveBeenCalled();
+    }
+
+    logMock.mockRestore();
+    errorMock.mockRestore();
+  });
 });

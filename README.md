@@ -23,7 +23,6 @@ This library is intended to be used within a NodeJS server application. API requ
 - [Getting Started](#getting-started)
   - [Pre-requisites](#pre-requisites)
   - [Simple API request example](#simple-api-request-example)
-  - [Running Samples](#running-samples)
 - [API Client](#api-client)
   - [Constructor](#constructor)
   - [Properties](#properties)
@@ -42,6 +41,7 @@ This library is intended to be used within a NodeJS server application. API requ
     - [`restliClient.delete(params)`](#restliclientdeleteparams)
     - [`restliClient.batchDelete(params)`](#restliclientbatchdeleteparams)
     - [`restliClient.action(params)`](#restliclientactionparams)
+    - [`restliClient.setDebugParams(params)`](#restliclientsetdebugparamsparams)
 - [Auth Client](#auth-client)
   - [Constructor](#constructor-1)
   - [Methods](#methods-1)
@@ -50,13 +50,6 @@ This library is intended to be used within a NodeJS server application. API requ
     - [`authClient.exchangeRefreshTokenForAccessToken(refreshToken)`](#authclientexchangerefreshtokenforaccesstokenrefreshtoken)
     - [`authClient.getTwoLeggedAccessToken()`](#authclientgettwoleggedaccesstoken)
     - [`authClient.introspectAccessToken(accessToken)`](#authclientintrospectaccesstokenaccesstoken)
-- [Utilities](#utilities)
-  - [Methods](#methods-2)
-    - [`utils.paramEncode(queryParams)`](#utilsparamencodequeryparams)
-    - [`utils.encode(value)`](#utilsencodevalue)
-    - [`utils.createUrnFromAttrs()`](#utilscreateurnfromattrs)
-    - [`utils.getCreatedEntityId(response)`](#utilsgetcreatedentityidresponse)
-    - [`utils.getPatchObject(original, modified)`](#utilsgetpatchobjectoriginal-modified)
 - [List of dependencies](#list-of-dependencies)
 
 ## Installation
@@ -64,12 +57,12 @@ This library is intended to be used within a NodeJS server application. API requ
 Using npm:
 
 ```sh
-npm install linkedin-api-js-client
+npm install linkedin-api-client
 ```
 Using yarn:
 
 ```sh
-yarn add linkedin-api-js-client
+yarn add linkedin-api-client
 ```
 
 ## Getting Started
@@ -85,7 +78,7 @@ yarn add linkedin-api-js-client
 From the [API docs](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin?context=linkedin%2Fconsumer%2Fcontext) for the Sign In with LinkedIn API product, we see this is a simple get request to fetch the current user's profile.
 
 ```js
-const { RestliClient } = require('linkedin-api-js-client');
+const { RestliClient } = require('linkedin-api-client');
 
 ...
 const restliClient = new RestliClient();
@@ -108,7 +101,7 @@ The API client defines instance methods for all the Rest.li methods which are us
 An instance of the API client must be created before using.
 
 ```
-const { RestliClient } = require('linkedin-api-js-client');
+const { RestliClient } = require('linkedin-api-client');
 
 const restliClient = new RestliClient(config);
 ```
@@ -653,6 +646,18 @@ restliClient.action({
 });
 ```
 
+#### `restliClient.setDebugParams(params)`
+
+Configures debug logging for troubleshooting requests.
+
+**Request Parameters:**
+
+| Parameter | Type | Required? | Description |
+|---|---|---|---|
+| `params` | Object | Yes | Parameters object |
+| `params.enabled` | boolean | No | Flag whether to enable debug logging. By default this is false. |
+| `params.logSuccessResponses` | boolean | No | Flag whether to log successful responses. By default this is false and only errors are logged. |
+
 ## Auth Client
 
 While we recommend using any of several popular, open-source libraries for robustly managing OAuth 2.0 authentication, we provide a basic Auth Client as a convenience for testing APIs and getting started.
@@ -660,7 +665,7 @@ While we recommend using any of several popular, open-source libraries for robus
 ### Constructor
 
 ```js
-const { AuthClient } = require('linkedin-api-js-client');
+const { AuthClient } = require('linkedin-api-client');
 
 const authClient = new AuthClient(params);
 ```

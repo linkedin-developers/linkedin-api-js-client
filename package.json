@@ -1,9 +1,9 @@
 {
-  "name": "linkedin-api-js-client",
-  "version": "0.1.0",
+  "name": "linkedin-api-client",
+  "version": "0.2.0",
   "description": "Official JavaScript client library for LinkedIn APIs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "scripts": {
     "test": "jest --detectOpenHandles",
     "test-debug-log": "DEBUG=nock.* jest --detectOpenHandles",
