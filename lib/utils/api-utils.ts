@@ -5,16 +5,22 @@
 import { VERSIONED_BASE_URL, NON_VERSIONED_BASE_URL, HEADERS } from './constants';
 import { version } from '../../package.json';
 
-export function getRestApiBaseUrl(versionString = null) {
+export function getRestApiBaseUrl(versionString?: string | null) {
   return versionString ? VERSIONED_BASE_URL : NON_VERSIONED_BASE_URL;
 }
 
 export function getRestliRequestHeaders({
   restliMethodType,
   accessToken,
-  versionString = null,
-  httpMethodOverride = null,
+  versionString,
+  httpMethodOverride,
   contentType = 'application/json'
+}: {
+  restliMethodType: string;
+  accessToken: string;
+  versionString?: string | null;
+  httpMethodOverride?: string;
+  contentType?: string;
 }) {
   const headers = {
     [HEADERS.CONNECTION]: 'Keep-Alive',

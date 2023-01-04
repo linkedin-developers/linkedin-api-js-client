@@ -23,10 +23,13 @@ This library is intended to be used within a NodeJS server application. API requ
 - [Getting Started](#getting-started)
   - [Pre-requisites](#pre-requisites)
   - [Simple API request example](#simple-api-request-example)
+  - [More Examples](#more-examples)
 - [API Client](#api-client)
   - [Constructor](#constructor)
   - [Properties](#properties)
   - [Methods](#methods)
+    - [Base Request Options](#base-request-options)
+    - [Base Response Object](#base-response-object)
     - [`restliClient.get(params)`](#restliclientgetparams)
     - [`restliClient.batchGet(params)`](#restliclientbatchgetparams)
     - [`restliClient.getAll(params)`](#restliclientgetallparams)
@@ -91,6 +94,10 @@ restliClient.get({
 });
 ...
 ```
+
+### More Examples
+
+There are more examples of using the client in [/examples](examples/) directory.
 
 ## API Client
 

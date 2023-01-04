@@ -114,6 +114,26 @@ describe('RestliClient', () => {
       }
     },
     {
+      description: 'Get request with field projections',
+      inputRequestRestliMethod: 'GET',
+      inputRequestOptions: {
+        resource: '/me',
+        queryParams: {
+          fields: 'id,firstName,lastName',
+          otherParam: [1, 2, 3]
+        },
+        accessToken: TEST_BEARER_TOKEN
+      },
+      inputResponse: {
+        data: { name: 'Jojo' },
+        status: 200
+      },
+      expectedRequest: {
+        baseUrl: NON_VERSIONED_BASE_URL,
+        path: '/me?otherParam=List(1,2,3)&fields=id,firstName,lastName'
+      }
+    },
+    {
       description: 'Get request with error response',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
