@@ -14,6 +14,7 @@ import {
   maybeApplyQueryTunnelingToRequestsWithBody
 } from './utils/query-tunneling';
 import _ from 'lodash';
+import { logSuccess, logError } from './utils/logging';
 
 /**
  * Type Definitions
@@ -275,9 +276,39 @@ export interface LIActionResponse extends AxiosResponse {
 
 export class RestliClient {
   axiosInstance: AxiosInstance;
+  #debugEnabled = false;
+  #logSuccessResponses = false;
 
   constructor(config: CreateAxiosDefaults = {}) {
     this.axiosInstance = axios.create(config);
+
+    this.axiosInstance.interceptors.response.use(
+      (response) => {
+        if (this.#debugEnabled && this.#logSuccessResponses) {
+          logSuccess(response);
+        }
+        return response;
+      },
+      async (error) => {
+        if (this.#debugEnabled) {
+          logError(error);
+        }
+        return await Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Set debug logging parameters for the client.
+   */
+  setDebugParams({
+    /** Flag whether to enable debug logging of request responses */
+    enabled = false,
+    /** Flag whether to log successful responses */
+    logSuccessResponses = false
+  }) {
+    this.#debugEnabled = enabled;
+    this.#logSuccessResponses = logSuccessResponses;
   }
 
   /**
