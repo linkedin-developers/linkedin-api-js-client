@@ -9,10 +9,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-async function main() {
+async function main(): Promise<void> {
   const restliClient = new RestliClient();
   restliClient.setDebugParams({ enabled: true });
-  const accessToken = process.env.ACCESS_TOKEN as string;
+  const accessToken = process.env.ACCESS_TOKEN || '';
 
   /**
    * Basic usage
@@ -48,7 +48,4 @@ async function main() {
   console.log(response.data);
 }
 
-main();
-
-
-
+await main();
