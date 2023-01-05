@@ -8,8 +8,8 @@
     "test": "jest --detectOpenHandles",
     "test-debug-log": "DEBUG=nock.* jest --detectOpenHandles",
     "@comment test": "The detectOpenHandles workaround is due to this issue: https://github.com/facebook/jest/issues/10577",
-    "format": "prettier --write '{lib,tests}/**/*.ts'",
-    "lint": "eslint {lib,tests}/**/*.ts",
+    "format": "prettier --write '{lib,examples,tests}/**/*.ts'",
+    "lint": "eslint {lib,examples,tests}/**/*.ts",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc --project tsconfig.build.json",
     "doc": "typedoc",
@@ -24,8 +24,8 @@
   },
   "lint-staged": {
     "{lib,tests}/**/*.ts": [
-      "eslint {lib,tests}/**/*.ts --fix",
-      "prettier --write '{lib,tests}/**/*.ts'"
+      "eslint {lib,examples,tests}/**/*.ts --fix",
+      "prettier --write '{lib,examples,tests}/**/*.ts'"
     ]
   },
   "devDependencies": {
