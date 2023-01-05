@@ -29,7 +29,9 @@ let accessToken = '';
 
 // Initialize auth and restli clients
 if (!(process.env.CLIENT_ID && process.env.CLIENT_SECRET && process.env.OAUTH2_REDIRECT_URL)) {
-  throw new Error('The CLIENT_ID, CLIENT_SECRET, and OAUTH2_REDIRECT_URL variables must be set in the .env file.');
+  throw new Error(
+    'The CLIENT_ID, CLIENT_SECRET, and OAUTH2_REDIRECT_URL variables must be set in the .env file.'
+  );
 }
 const authClient = new AuthClient({
   clientId: process.env.CLIENT_ID,
@@ -43,17 +45,20 @@ restliClient.setDebugParams({ enabled: true });
 app.get('/', (_req, res) => {
   if (!accessToken) {
     // If no access token, have member authorize again
-    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile']));
+    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile', 'r_ads']));
   } else {
     // Fetch profile details
-    restliClient.get({
-      resource: '/me',
-      accessToken
-    }).then(response => {
-      res.json(response.data);
-    }).catch(() => {
-      res.send('Error encountered while fetching profile.');
-    });
+    restliClient
+      .get({
+        resource: '/me',
+        accessToken
+      })
+      .then((response) => {
+        res.json(response.data);
+      })
+      .catch(() => {
+        res.send('Error encountered while fetching profile.');
+      });
   }
 });
 
@@ -62,8 +67,9 @@ app.get('/oauth', (req, res) => {
   const authCode = req.query?.code as string;
   if (authCode) {
     // Exchange auth code for an access token and redirect to main page
-    authClient.exchangeAuthCodeForAccessToken(authCode)
-      .then(response => {
+    authClient
+      .exchangeAuthCodeForAccessToken(authCode)
+      .then((response) => {
         accessToken = response.access_token;
         res.redirect('/');
       })
