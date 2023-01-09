@@ -1,13 +1,14 @@
 {
   "name": "linkedin-api-client-examples",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Examples for LinkedIn API JavaScript Client",
-  "author": "",
-  "license": "ISC",
+  "author": "LinkedIn",
+  "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "preinstall": "cd .. && npm install && npm run build"
   },
   "dependencies": {
+    "axios-retry": "^3.3.1",
     "linkedin-api-client": ".."
   },
   "devDependencies": {
