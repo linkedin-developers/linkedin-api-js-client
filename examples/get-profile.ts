@@ -48,4 +48,8 @@ async function main(): Promise<void> {
   console.log(response.data);
 }
 
-await main();
+main().then(() => {
+  console.log('Completed');
+}).catch((error) => {
+  console.log(`Error encountered: ${error.message}`);
+});

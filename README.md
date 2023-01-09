@@ -6,6 +6,8 @@ This library helps reduce this complexity by formatting requests correctly, prov
 
 This library is intended to be used within a NodeJS server application. API requests from browser environments are not supported for LinkedIn APIs due to CORS policy.
 
+> :warning: This API client library is currently in beta and is subject to change. It may contain bugs, errors, or other issues that we are working to resolve. Use of this library is at your own risk. Please use caution when using it in production environments and be prepared for the possibility of unexpected behavior. We welcome any feedback or reports of issues that you may encounter while using this library.
+
 ### Features
 
 - Generic support for all Rest.li methods used in LinkedIn APIs
@@ -28,8 +30,6 @@ This library is intended to be used within a NodeJS server application. API requ
   - [Constructor](#constructor)
   - [Properties](#properties)
   - [Methods](#methods)
-    - [Base Request Options](#base-request-options)
-    - [Base Response Object](#base-response-object)
     - [`restliClient.get(params)`](#restliclientgetparams)
     - [`restliClient.batchGet(params)`](#restliclientbatchgetparams)
     - [`restliClient.getAll(params)`](#restliclientgetallparams)
@@ -76,14 +76,13 @@ yarn add linkedin-api-client
 2. Request access to the Sign In With LinkedIn API product. This is a self-serve product that will be provisioned immediately to your application.
 3. Generate a 3-legged access token using the Developer Portal [token generator tool](https://www.linkedin.com/developers/tools/oauth/token-generator), selecting the r_liteprofile scope.
 
-### Simple API request example
+### Simple API Request Example
 
-From the [API docs](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin?context=linkedin%2Fconsumer%2Fcontext) for the Sign In with LinkedIn API product, we see this is a simple get request to fetch the current user's profile.
+Here is an example of using the client to make a simple GET request to [fetch the current user's profile](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin#retrieving-member-profiles). This requires a 3-legged access token with the "r_liteprofile" scope, which is included with the Sign In With LinkedIn API product.
 
 ```js
 const { RestliClient } = require('linkedin-api-client');
 
-...
 const restliClient = new RestliClient();
 
 restliClient.get({
@@ -92,7 +91,39 @@ restliClient.get({
 }).then(response => {
   const profile = response.data;
 });
-...
+```
+
+### Finder Request Example
+
+Here is a more non-trivial example to [find ad accounts](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-accounts?#search-for-accounts) by some search critiera. This requires a 3-legged access token with the "r_ads" scope, which is included with the Marketing Developer Platform API product.
+
+We provide the JSON-serialized value of the "search" query parameter object, and the client will handle the correct URL-encoding. This is a versioned API call, so we provide the version string in the "YYYYMM" format.
+
+```js
+const { RestliClient } = require('linkedin-api-client');
+
+const restliClient = new RestliClient();
+
+restliClient.finder({
+  resource: '/adAccounts',
+  finderName: 'search',
+  queryParams: {
+    search: {
+      status: {
+        values: ['ACTIVE', 'DRAFT']
+      },
+      reference: {
+        values: ['urn:li:organization:123']
+      },
+      test: true
+    }
+  },
+  versionString: '202212',
+  accessToken: <THREE_LEGGED_ACCESS_TOKEN>
+}).then(response => {
+  const adAccounts = response.data.elements;
+  const total = response.data.paging.total;
+});
 ```
 
 ### More Examples
@@ -107,7 +138,7 @@ The API client defines instance methods for all the Rest.li methods which are us
 
 An instance of the API client must be created before using.
 
-```
+```js
 const { RestliClient } = require('linkedin-api-client');
 
 const restliClient = new RestliClient(config);
