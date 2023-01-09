@@ -1,6 +1,7 @@
 /**
  * Example calls to perform BATCH_GET on campaign groups and illustrate automatic
  * query tunneling.
+ *
  * The 3-legged member access token should include the 'r_ads' scope, which
  * is part of the Marketing Developer Platform API product.
  */
