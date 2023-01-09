@@ -21,7 +21,7 @@ async function main(): Promise<void> {
     resource: '/me',
     accessToken
   });
-  console.log(response.data);
+  console.log('Basic usage:', response.data);
 
   /**
    * With field projection to limit fields returned
@@ -33,7 +33,7 @@ async function main(): Promise<void> {
     },
     accessToken
   });
-  console.log(response.data);
+  console.log('With field projections:', response.data);
 
   /**
    * With decoration of displayImage
@@ -45,7 +45,7 @@ async function main(): Promise<void> {
     },
     accessToken
   });
-  console.log(response.data);
+  console.log('With decoration:', response.data);
 }
 
 main().then(() => {

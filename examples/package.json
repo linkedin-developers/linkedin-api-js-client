@@ -8,6 +8,7 @@
     "preinstall": "cd .. && npm install && npm run build"
   },
   "dependencies": {
+    "axios-retry": "^3.3.1",
     "linkedin-api-client": ".."
   },
   "devDependencies": {
