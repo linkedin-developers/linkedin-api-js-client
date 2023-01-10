@@ -16,6 +16,10 @@
     "prepare": "husky install"
   },
   "author": "LinkedIn",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linkedin-samples/linkedin-api-js-client.git"
+  },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "axios": "^1.1.3",
