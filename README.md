@@ -1,10 +1,10 @@
 ## Overview
 
-This library provides a thin JavaScript client for making requests to LinkedIn APIs, utilizing the [Axios](https://axios-http.com/docs/intro) HTTP client library and written in TypeScript. LinkedIn's APIs are built on the [Rest.li](https://linkedin.github.io/rest.li/) framework with additional LinkedIn-specific constraints, which results in a robust yet complex protocol that can be challening to implement correctly.
+This library provides a thin JavaScript client for making requests to LinkedIn APIs, utilizing the [Axios](https://axios-http.com/docs/intro) HTTP client library and written in TypeScript. LinkedIn's APIs are built on the [Rest.li](https://linkedin.github.io/rest.li/) framework with additional LinkedIn-specific constraints, which results in a robust yet complex protocol that can be challenging to implement correctly.
 
 This library helps reduce this complexity by formatting requests correctly, providing proper request headers, and providing interfaces to develop against for responses. The library also provides an auth client for inspecting, generating, and refreshing access tokens, along with other helpful utilities.
 
-This library is intended to be used within a NodeJS server application. API requests from browser environments are not supported for LinkedIn APIs due to CORS policy.
+This library is intended for use within a Node.js server application. API requests from browser environments are not supported by LinkedIn APIs due to the CORS policy.
 
 > :warning: This API client library is currently in beta and is subject to change. It may contain bugs, errors, or other issues that we are working to resolve. Use of this library is at your own risk. Please use caution when using it in production environments and be prepared for the possibility of unexpected behavior. We welcome any feedback or reports of issues that you may encounter while using this library.
 
@@ -30,29 +30,28 @@ This library is intended to be used within a NodeJS server application. API requ
   - [Constructor](#constructor)
   - [Properties](#properties)
   - [Methods](#methods)
-    - [`restliClient.get(params)`](#restliclientgetparams)
-    - [`restliClient.batchGet(params)`](#restliclientbatchgetparams)
-    - [`restliClient.getAll(params)`](#restliclientgetallparams)
-    - [`restliClient.finder(params)`](#restliclientfinderparams)
-    - [`restliClient.batchFinder(params)`](#restliclientbatchfinderparams)
-    - [`restliClient.create(params)`](#restliclientcreateparams)
-    - [`restliClient.batchCreate(params)`](#restliclientbatchcreateparams)
-    - [`restliClient.update(params)`](#restliclientupdateparams)
-    - [`restliClient.batchUpdate(params)`](#restliclientbatchupdateparams)
-    - [`restliClient.partialUpdate(params)`](#restliclientpartialupdateparams)
-    - [`restliClient.batchPartialUpdate(params)`](#restliclientbatchpartialupdateparams)
-    - [`restliClient.delete(params)`](#restliclientdeleteparams)
-    - [`restliClient.batchDelete(params)`](#restliclientbatchdeleteparams)
-    - [`restliClient.action(params)`](#restliclientactionparams)
-    - [`restliClient.setDebugParams(params)`](#restliclientsetdebugparamsparams)
+    - [`get()`](#getparams)
+    - [`getAll()`](#getallparams)
+    - [`finder()`](#finderparams)
+    - [`batchFinder()`](#batchfinderparams)
+    - [`create()`](#createparams)
+    - [`batchCreate()`](#batchcreateparams)
+    - [`update()`](#updateparams)
+    - [`batchUpdate()`](#batchupdateparams)
+    - [`partialUpdate()`](#partialupdateparams)
+    - [`batchPartialUpdate()`](#batchpartialupdateparams)
+    - [`delete()`](#deleteparams)
+    - [`batchDelete()`](#batchdeleteparams)
+    - [`action()`](#actionparams)
+    - [`setDebugParams()`](#setdebugparamsparams)
 - [Auth Client](#auth-client)
   - [Constructor](#constructor-1)
   - [Methods](#methods-1)
-    - [`authClient.generateMemberAuthorizationUrl(scopes, state)`](#authclientgeneratememberauthorizationurlscopes-state)
-    - [`authClient.exchangeAuthCodeForAccessToken(code)`](#authclientexchangeauthcodeforaccesstokencode)
-    - [`authClient.exchangeRefreshTokenForAccessToken(refreshToken)`](#authclientexchangerefreshtokenforaccesstokenrefreshtoken)
-    - [`authClient.getTwoLeggedAccessToken()`](#authclientgettwoleggedaccesstoken)
-    - [`authClient.introspectAccessToken(accessToken)`](#authclientintrospectaccesstokenaccesstoken)
+    - [`generateMemberAuthorizationUrl()`](#generatememberauthorizationurlscopes-state)
+    - [`exchangeAuthCodeForAccessToken()`](#exchangeauthcodeforaccesstokencode)
+    - [`exchangeRefreshTokenForAccessToken()`](#exchangerefreshtokenforaccesstokenrefreshtoken)
+    - [`getTwoLeggedAccessToken()`](#gettwoleggedaccesstoken)
+    - [`introspectAccessToken()`](#introspectaccesstokenaccesstoken)
 - [List of dependencies](#list-of-dependencies)
 
 ## Installation
@@ -97,7 +96,7 @@ restliClient.get({
 
 Here is a more non-trivial example to [find ad accounts](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-accounts?#search-for-accounts) by some search critiera. This requires a 3-legged access token with the "r_ads" scope, which is included with the Marketing Developer Platform API product.
 
-We provide the JSON-serialized value of the "search" query parameter object, and the client will handle the correct URL-encoding. This is a versioned API call, so we provide the version string in the "YYYYMM" format.
+We provide the value of the "search" query parameter object, and the client will handle the correct URL-encoding. This is a versioned API call, so we provide the version string in the "YYYYMM" format.
 
 ```js
 const { RestliClient } = require('linkedin-api-client');
@@ -172,7 +171,7 @@ All methods of the API client require passing in a request options object, all o
 
 All methods of the API client return a Promise that resolves to a response object that extends [AxiosResponse](https://axios-http.com/docs/res_schema). This client provides more detailed interfaces of the specific response data payload that is useful for static type-checking and IDE auto-completion.
 
-#### `restliClient.get(params)`
+#### `get(params)`
 
 Makes a Rest.li GET request to fetch the specified entity on a resource. This method will perform query tunneling if necessary.
 
@@ -188,7 +187,7 @@ Makes a Rest.li GET request to fetch the specified entity on a resource. This me
 | Field | Type | Description |
 |---|---|---|
 | `response` | Object extends [AxiosResponse](https://axios-http.com/docs/res_schema) | Axios response object |
-| `response.data` | Object | The JSON-serialized Rest.li entity |
+| `response.data` | Object | The Rest.li entity |
 
 **Example:**
 ```js
@@ -205,7 +204,7 @@ restliClient.get({
 });
 ```
 
-#### `restliClient.batchGet(params)`
+#### `batchGet(params)`
 
 Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This method will perform query tunneling if necessary.
 
@@ -221,7 +220,7 @@ Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This
 | Field | Type | Description |
 |---|---|---|
 | `response` | Object extends [AxiosResponse](https://axios-http.com/docs/res_schema) | Axios response object |
-| `response.data.results` | Object | A map of entities that were successfully retrieved, with the key being the encoded entity id, and the value being the JSON-serialized entity. |
+| `response.data.results` | Object | A map of entities that were successfully retrieved, with the key being the encoded entity id, and the value being the entity. |
 | `response.data.errors` | Object | A map containing entities that could not be successfully fetched, with the key being the encoded entity id, and the value being the error response. |
 | `response.data.statuses` | Object | A map of entities and status code, with the key being the encoded entity id, and the value being the status code number value. |
 
@@ -237,7 +236,7 @@ restliClient.batchGet({
 });
 ```
 
-#### `restliClient.getAll(params)`
+#### `getAll(params)`
 
 Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 
@@ -252,7 +251,7 @@ Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 | Field | Type | Description |
 |---|---|---|
 | `response` | Object extends [AxiosResponse](https://axios-http.com/docs/res_schema) | Axios response object |
-| `response.data.elements` | Object[] | The list of JSON-serialized Rest.li entities |
+| `response.data.elements` | Object[] | The list of Rest.li entities |
 | `response.data.paging` | Object | Paging metadata object
 
 **Example:**
@@ -271,7 +270,7 @@ restliClient.getAll({
 });
 ```
 
-#### `restliClient.finder(params)`
+#### `finder(params)`
 
 Makes a Rest.li FINDER request to find entities by some specified criteria.
 
@@ -314,7 +313,7 @@ restliClient.finder({
 });
 ```
 
-#### `restliClient.batchFinder(params)`
+#### `batchFinder(params)`
 
 Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criteria.
 
@@ -363,7 +362,7 @@ restliClient.batchFinder({
 });
 ```
 
-#### `restliClient.create(params)`
+#### `create(params)`
 
 Makes a Rest.li CREATE request to create a new entity on the resource.
 
@@ -372,7 +371,7 @@ Makes a Rest.li CREATE request to create a new entity on the resource.
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.entity` | Object | Yes | The JSON-serialized value of the entity to create |
+| `params.entity` | Object | Yes | The value of the entity to create |
 
 **Resolved Response Object:**
 
@@ -396,7 +395,7 @@ restliClient.create({
 });
 ```
 
-#### `restliClient.batchCreate(params)`
+#### `batchCreate(params)`
 
 Makes a Rest.li BATCH_CREATE request to create multiple entities in a single call.
 
@@ -405,7 +404,7 @@ Makes a Rest.li BATCH_CREATE request to create multiple entities in a single cal
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.entities` | Object[] | Yes | The JSON-serialized values of the entities to create |
+| `params.entities` | Object[] | Yes | The values of the entities to create |
 
 **Resolved Response Object:**
 
@@ -440,7 +439,7 @@ restliClient.batchCreate({
 });
 ```
 
-#### `restliClient.update(params)`
+#### `update(params)`
 
 Makes a Rest.li UPDATE request to update an entity (overwriting the entire entity).
 
@@ -450,6 +449,7 @@ Makes a Rest.li UPDATE request to update an entity (overwriting the entire entit
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.id` | String \|\| Number \|\| Object | Yes | The id or key of the entity to update. For simple resources, this is not specified. |
+| `params.entity` | Object | Yes | The value of the entity with updated values. |
 
 **Resolved Response Object:**
 
@@ -477,7 +477,7 @@ restliClient.update({
 });
 ```
 
-#### `restliClient.batchUpdate(params)`
+#### `batchUpdate(params)`
 
 Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single call.
 
@@ -487,7 +487,7 @@ Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single cal
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.ids` | String[] \|\| Number[] \|\| Object[] | Yes | The list of entity ids to update |
-| `params.entities` | Object[] | Yes | The list of JSON-serialized values of entities with updated values. |
+| `params.entities` | Object[] | Yes | The list of values of entities with updated values. |
 
 **Resolved Response Object:**
 
@@ -513,7 +513,7 @@ restliClient.batchUpdate({
 });
 ```
 
-#### `restliClient.partialUpdate(params)`
+#### `partialUpdate(params)`
 
 Makes a Rest.li PARTIAL_UPDATE request to update part of an entity. One can either directly pass the patch object to send in the request, or one can pass the full original and modified entity objects, with the method computing the correct patch object.
 
@@ -525,9 +525,9 @@ When an entity has nested fields that can be modified, passing in the original a
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.id` | String \|\| Number \|\| Object | No | The id or key of the entity to update. For simple resources, this is not specified. |
-| `params.patchSetObject` | Object | No | The JSON-serialized value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. |
-| `params.originalEntity` | Object | No | The JSON-serialized value of the original entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `modifiedEntity` to compute the patch object. |
-| `params.modifiedEntity` | Object | No | The JSON-serialized value of the modified entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `originalEntity` to compute the patch object. |
+| `params.patchSetObject` | Object | No | The value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. |
+| `params.originalEntity` | Object | No | The value of the original entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `modifiedEntity` to compute the patch object. |
+| `params.modifiedEntity` | Object | No | The value of the modified entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `originalEntity` to compute the patch object. |
 
 **Resolved Response Object:**
 
@@ -551,7 +551,7 @@ restliClient.partialUpdate({
 });
 ```
 
-#### `restliClient.batchPartialUpdate(params)`
+#### `batchPartialUpdate(params)`
 
 Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entites at once.
 
@@ -561,9 +561,9 @@ Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entite
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.ids` | String[] \|\| Number[] \|\| Object[] | Yes | The list of entity ids to update |
-| `params.patchSetObjects` | Object[] | No | The list of JSON-serialized values of the entities with only the modified fields present. If specified, this will be directly sent as the patch object |
-| `params.originalEntities` | Object[] | No | The list of JSON-serialized values of the original entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `modifiedEntities` to compute patch object for each entity. |
-| `params.modifiedEntities` | Object[] | No | The list of JSON-serialized values of the modified entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `originalEntities` to compute the patch object for each entity. |
+| `params.patchSetObjects` | Object[] | No | The list of values of the entities with only the modified fields present. If specified, this will be directly sent as the patch object |
+| `params.originalEntities` | Object[] | No | The list of values of the original entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `modifiedEntities` to compute patch object for each entity. |
+| `params.modifiedEntities` | Object[] | No | The list of values of the modified entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `originalEntities` to compute the patch object for each entity. |
 
 **Resolved Response Object:**
 
@@ -594,7 +594,7 @@ restliClient.batchPartialUpdate({
 });
 ```
 
-#### `restliClient.delete(params)`
+#### `delete(params)`
 
 Makes a Rest.li DELETE request to delete an entity.
 
@@ -623,7 +623,7 @@ restliClient.delete({
 });
 ```
 
-#### `restliClient.batchDelete(params)`
+#### `batchDelete(params)`
 
 Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 
@@ -654,7 +654,7 @@ restliClient.batchDelete({
 });
 ```
 
-#### `restliClient.action(params)`
+#### `action(params)`
 
 Makes a Rest.li ACTION request to perform an action on a specified resource.
 
@@ -684,7 +684,7 @@ restliClient.action({
 });
 ```
 
-#### `restliClient.setDebugParams(params)`
+#### `setDebugParams(params)`
 
 Configures debug logging for troubleshooting requests.
 
@@ -717,7 +717,7 @@ const authClient = new AuthClient(params);
 
 ### Methods
 
-#### `authClient.generateMemberAuthorizationUrl(scopes, state)`
+#### `generateMemberAuthorizationUrl(scopes, state)`
 
 Generates the member authorization URL to direct members to. Once redirected, the member will be presented with LinkedIn's OAuth consent page showing the OAuth scopes your application is requesting on behalf of the user.
 
@@ -735,7 +735,7 @@ Generates the member authorization URL to direct members to. Once redirected, th
 | `memberAuthorizationUrl` | String | The member authorization URL |
 
 
-#### `authClient.exchangeAuthCodeForAccessToken(code)`
+#### `exchangeAuthCodeForAccessToken(code)`
 
 Exchanges an authorization code for a 3-legged access token. After member authorization, the browser redirects to the provided redirect URL, setting the authorization code on the `code` query parameter.
 
@@ -756,7 +756,7 @@ Exchanges an authorization code for a 3-legged access token. After member author
 | `tokenDetails.refresh_token_expires_in` | Number | The TTL of the refresh token, in seconds. This is only present if refresh tokens are enabled for the application. |
 | `tokenDetails.scope` | String | A comma-separated list of scopes authorized by the member (e.g. "r_liteprofile,r_ads") |
 
-#### `authClient.exchangeRefreshTokenForAccessToken(refreshToken)`
+#### `exchangeRefreshTokenForAccessToken(refreshToken)`
 
 Exchanges a refresh token for a new 3-legged access token. This allows access tokens to be refreshed without having the member reauthorize your application.
 
@@ -777,7 +777,7 @@ Exchanges a refresh token for a new 3-legged access token. This allows access to
 | `tokenDetails.refresh_token_expires_in` | Number | The TTL of the refresh token, in seconds |
 
 
-#### `authClient.getTwoLeggedAccessToken()`
+#### `getTwoLeggedAccessToken()`
 
 Use client credential flow (2-legged OAuth) to retrieve a 2-legged access token for accessing APIs that are not member-specific. Developer applications do not have the client credential flow enabled by default.
 
@@ -789,7 +789,7 @@ Use client credential flow (2-legged OAuth) to retrieve a 2-legged access token 
 | `tokenDetails.access_token` | String | The 2-legged access token |
 | `tokenDetails.expires_in` | Number | The TTL of the access token, in seconds |
 
-#### `authClient.introspectAccessToken(accessToken)`
+#### `introspectAccessToken(accessToken)`
 
 Introspect a 2-legged, 3-legged or Enterprise access token to get information on status, expiry, and other details.
 
