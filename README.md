@@ -26,7 +26,7 @@ This library is intended for use within a Node.js server application. API reques
   - [Pre-requisites](#pre-requisites)
   - [Simple API request example](#simple-api-request-example)
   - [More Examples](#more-examples)
-- [API Client](#api-client)
+- [RestliClient](#restliclient)
   - [Constructor](#constructor)
   - [Properties](#properties)
   - [Methods](#methods)
@@ -44,7 +44,7 @@ This library is intended for use within a Node.js server application. API reques
     - [`batchDelete()`](#batchdeleteparams)
     - [`action()`](#actionparams)
     - [`setDebugParams()`](#setdebugparamsparams)
-- [Auth Client](#auth-client)
+- [AuthClient](#authclient)
   - [Constructor](#constructor-1)
   - [Methods](#methods-1)
     - [`generateMemberAuthorizationUrl()`](#generatememberauthorizationurlscopes-state)
@@ -129,9 +129,9 @@ restliClient.finder({
 
 There are more examples of using the client in [/examples](examples/) directory.
 
-## API Client
+## `RestliClient`
 
-The API client defines instance methods for all the Rest.li methods which are used by LinkedIn APIs. Rest.li defines a standard set of methods that can operate on a resource, each of which maps to an HTTP method. Depending on the resource, some Rest.li methods are not applicable or not implemented. Read the API docs to determine what Rest.li method is applicable and the applicable request parameters.
+The RestliClient class defines instance methods for all the Rest.li methods which are used by LinkedIn APIs. Rest.li defines a standard set of methods that can operate on a resource, each of which maps to an HTTP method. Depending on the resource, some Rest.li methods are not applicable or not implemented. Read the API docs to determine what Rest.li method is applicable and the applicable request parameters.
 
 ### Constructor
 
@@ -182,7 +182,7 @@ Makes a Rest.li GET request to fetch the specified entity on a resource. This me
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -217,7 +217,7 @@ Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.ids` | String[] \|\| Number[] \|\| Object[] | Yes | The list of ids to fetch on the resource. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -248,7 +248,7 @@ Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -283,7 +283,7 @@ Makes a Rest.li FINDER request to find entities by some specified criteria.
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.finderName` | String | Yes | The Rest.li finder name. This will be included in the request query parameters. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -327,7 +327,7 @@ Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criter
 | `params.finderName` | String | Yes | The Rest.li batch finder name. This will be included in the request query parameters. |
 | `params.finderCriteria` | Object | Yes | An object with `name` and `value` properties, representing the required batch finder criteria information. `name` should be the batch finder criteria parameter name, and `value` should be a list of finder param objects. The batch finder results are correspondingly ordered according to this list. The batch finder criteria will be encoded and added to the request query parameters. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -377,7 +377,7 @@ Makes a Rest.li CREATE request to create a new entity on the resource.
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.entity` | Object | Yes | The value of the entity to create |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -410,7 +410,7 @@ Makes a Rest.li BATCH_CREATE request to create multiple entities in a single cal
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.entities` | Object[] | Yes | The values of the entities to create |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -454,7 +454,7 @@ Makes a Rest.li UPDATE request to update an entity (overwriting the entire entit
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.entity` | Object | Yes | The value of the entity with updated values. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -494,7 +494,7 @@ Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single cal
 | `params.ids` | String[] \|\| Number[] \|\| Object[] | Yes | The list of entity ids to update |
 | `params.entities` | Object[] | Yes | The list of values of entities with updated values. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -533,7 +533,7 @@ When an entity has nested fields that can be modified, passing in the original a
 | `params.originalEntity` | Object | No | The value of the original entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `modifiedEntity` to compute the patch object. |
 | `params.modifiedEntity` | Object | No | The value of the modified entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `originalEntity` to compute the patch object. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -571,7 +571,7 @@ Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entite
 | `params.originalEntities` | Object[] | No | The list of values of the original entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `modifiedEntities` to compute patch object for each entity. |
 | `params.modifiedEntities` | Object[] | No | The list of values of the modified entities. If specified and `patchSetObjects` is not provided, this will be used in conjunction with `originalEntities` to compute the patch object for each entity. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -610,7 +610,7 @@ Makes a Rest.li DELETE request to delete an entity.
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -641,7 +641,7 @@ Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
 | `params.ids` | String[] \|\| Number[] \|\| Object[] | Yes | The ids of the entities to delete. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -673,7 +673,7 @@ Makes a Rest.li ACTION request to perform an action on a specified resource.
 | `params.actionName` | String | Yes | The Rest.li action name |
 | `params.data` | Object | No | The request body data to pass to the action. |
 
-**Resolved Response Object:**
+**Returns `Promise<response>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -703,7 +703,7 @@ Configures debug logging for troubleshooting requests.
 | `params.enabled` | boolean | No | Flag whether to enable debug logging. By default this is false. |
 | `params.logSuccessResponses` | boolean | No | Flag whether to log successful responses. By default this is false and only errors are logged. |
 
-## Auth Client
+## `AuthClient`
 
 While we recommend using any of several popular, open-source libraries for robustly managing OAuth 2.0 authentication, we provide a basic Auth Client as a convenience for testing APIs and getting started.
 
@@ -735,7 +735,7 @@ Generates the member authorization URL to direct members to. Once redirected, th
 | `scopes` | String[] | Yes | An array of OAuth scopes (3-legged member permissions) your application is requesting on behalf of the user. |
 | `state` | String | No | An optional string that can be provided to test against CSRF attacks. |
 
-**Returns** `memberAuthorizationUrl`
+**Returns `memberAuthorizationUrl`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -752,7 +752,7 @@ Exchanges an authorization code for a 3-legged access token. After member author
 |---|---|---|---|
 | `code` | String | Yes | The authorization code to exchange for an access token |
 
-**Returns** `Promise<tokenDetails>`
+**Returns `Promise<tokenDetails>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -773,7 +773,7 @@ Exchanges a refresh token for a new 3-legged access token. This allows access to
 |---|---|---|---|
 | `refreshToken` | String | Yes | The refresh token to exchange for an access token |
 
-**Returns** `Promise<tokenDetails>`
+**Returns `Promise<tokenDetails>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -788,7 +788,7 @@ Exchanges a refresh token for a new 3-legged access token. This allows access to
 
 Use client credential flow (2-legged OAuth) to retrieve a 2-legged access token for accessing APIs that are not member-specific. Developer applications do not have the client credential flow enabled by default.
 
-**Returns** `Promise<tokenDetails>`
+**Returns `Promise<tokenDetails>`**
 
 | Field | Type | Description |
 |---|---|---|
@@ -806,7 +806,7 @@ Introspect a 2-legged, 3-legged or Enterprise access token to get information on
 |---|---|---|---|
 | `accessToken` | String | Yes | A 2-legged, 3-legged or Enterprise access token. |
 
-**Returns** `Promise<tokenDetails>`
+**Returns `Promise<tokenDetails>`**
 
 | Field | Type | Description |
 |---|---|---|
