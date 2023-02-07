@@ -45,12 +45,12 @@ restliClient.setDebugParams({ enabled: true });
 app.get('/', (_req, res) => {
   if (!accessToken) {
     // If no access token, have member authorize again
-    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile', 'r_ads']));
+    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile', 'rw_ads']));
   } else {
     // Fetch profile details
     restliClient
       .get({
-        resource: '/me',
+        resourcePath: '/me',
         accessToken
       })
       .then((response) => {
@@ -71,6 +71,7 @@ app.get('/oauth', (req, res) => {
       .exchangeAuthCodeForAccessToken(authCode)
       .then((response) => {
         accessToken = response.access_token;
+        console.log(`Access token: ${accessToken}`);
         res.redirect('/');
       })
       .catch(() => {

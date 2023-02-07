@@ -4,11 +4,11 @@ import axios, {
   AxiosResponse,
   CreateAxiosDefaults
 } from 'axios';
-import { RESTLI_METHODS } from './utils/constants';
+import { HTTP_METHODS, RESTLI_METHODS } from './utils/constants';
 import { getPatchObject } from './utils/patch-generator';
 import { encode, paramEncode } from './utils/encoder';
 import { getCreatedEntityId, encodeQueryParamsForGetRequests } from './utils/restli-utils';
-import { getRestApiBaseUrl, getRestliRequestHeaders } from './utils/api-utils';
+import { buildRestliUrl, getRestliRequestHeaders } from './utils/api-utils';
 import {
   maybeApplyQueryTunnelingToRequestsWithoutBody,
   maybeApplyQueryTunnelingToRequestsWithBody
@@ -21,12 +21,21 @@ import { logSuccess, logError } from './utils/logging';
  */
 
 export interface LIRestliRequestOptionsBase {
-  /** The API resource name (e.g. "/adAccounts") */
-  resource: string;
-  /** A map of query parameters, whose keys/values should not be encoded */
-  queryParams?: Record<string, any>;
+  /**
+   * The resource path after the base URL, beginning with a forward slash. If the path contains keys,
+   * add curly-brace placeholders for the keys and specify the path key-value map in the `pathKeys` argument.
+   */
+  resourcePath: string;
   /** The access token that should provide the application access to the specified API */
   accessToken: string;
+  /**
+   * If there are path keys that are part of the `resourcePath` argument, the key placeholders must be specified in
+   * the provided `pathKeys` map. The path key values can be strings, numbers, or objects, and these
+   * will be properly encoded.
+   */
+  pathKeys?: Record<string, any>;
+  /** A map of query parameters, whose keys/values should not be encoded */
+  queryParams?: Record<string, any>;
   /** optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL. */
   versionString?: string | null;
   /** optional Axios request config object that will be merged into the request config. This will override any properties the client method sets, which may cause unexpected errors. Query params should not be passed here--instead they should be set in the queryParams property for proper Rest.li encoding. */
@@ -137,9 +146,24 @@ export interface LIFinderRequestOptions extends LIRestliRequestOptionsBase {
   finderName: string;
 }
 
+export interface BatchFinderCriteria {
+  /** The batch finder crtieria parameter name. */
+  name: string;
+  /** A list of finder param objects. batch finder results are correspondingly ordered according to this list. */
+  value: Array<Record<string, any>>;
+}
+
 export interface LIBatchFinderRequestOptions extends LIRestliRequestOptionsBase {
-  /** The Rest.li batch finder name */
-  batchFinderName: string;
+  /**
+   * The Rest.li batch finder name (the value of the "bq" parameter). This will be added to the request
+   * query parameters.
+   */
+  finderName: string;
+  /**
+   * An object representing the batch finder criteria information. This will be encoded and added to the
+   * request query parameters.
+   */
+  finderCriteria: BatchFinderCriteria;
 }
 
 export interface LIActionRequestOptions extends LIRestliRequestOptionsBase {
@@ -318,8 +342,10 @@ export class RestliClient {
    * @example
    * ```ts
    * client.get({
-   *   resource: '/adAccounts',
-   *   id: 123,
+   *   resourcePath: '/adAccounts/{id}',
+   *   pathKeys: {
+   *     id: 123
+   *   },
    *   queryParams: {
    *     fields: 'id,name'
    *   },
@@ -333,17 +359,15 @@ export class RestliClient {
    * @returns a Promise that resolves to the response object containing the entity.
    */
   async get({
-    resource,
-    id = null,
+    resourcePath,
+    accessToken,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
-    accessToken,
     additionalConfig = {}
   }: LIGetRequestOptions): Promise<LIGetResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = encodeQueryParamsForGetRequests(queryParams);
-    // Simple resources do not have id
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
@@ -364,7 +388,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.batchGet({
-   *   resource: '/adCampaignGroups',
+   *   resourcePath: '/adCampaignGroups',
    *   ids: [123, 456, 789],
    *   accessToken: 'ABC123',
    *   versionString: '202210'
@@ -374,22 +398,23 @@ export class RestliClient {
    * ```
    */
   async batchGet({
-    resource,
+    resourcePath,
     ids,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchGetRequestOptions): Promise<LIBatchGetResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
     const encodedQueryParamString = encodeQueryParamsForGetRequests({
       ids,
       ...queryParams
     });
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
+      urlPath,
       originalRestliMethod: RESTLI_METHODS.BATCH_GET,
       accessToken,
       versionString,
@@ -406,7 +431,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.getAll({
-   *   resource: '/fieldsOfStudy',
+   *   resourcePath: '/fieldsOfStudy',
    *   queryParams: {
    *     start: 0,
    *     count: 15
@@ -418,19 +443,131 @@ export class RestliClient {
    * ```
    */
   async getAll({
-    resource,
+    resourcePath,
+    accessToken,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
-    accessToken,
     additionalConfig = {}
   }: LIGetAllRequestOptions): Promise<LIGetAllResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = encodeQueryParamsForGetRequests(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
+      urlPath,
       originalRestliMethod: RESTLI_METHODS.GET_ALL,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
+    return await this.axiosInstance.request(requestConfig);
+  }
+
+  /**
+   * Makes a Rest.li FINDER request to find entities by some specified criteria. This method
+   * will perform query tunneling if necessary.
+   *
+   * @example
+   * ```ts
+   * restliClient.finder({
+   *   resourcePath: '/adAccounts',
+   *   finderName: 'search',
+   *   queryParams: {
+   *     search: {
+   *       status: {
+   *         values: ['DRAFT', 'ACTIVE', 'REMOVED']
+   *       }
+   *     }
+   *   },
+   *   accessToken: 'ABC123',
+   *   versionString: '202210'
+   * }).then(response => {
+   *   const elements = response.data.elements;
+   *   const total = response.data.paging.total;
+   * });
+   * ```
+   */
+  async finder({
+    resourcePath,
+    finderName,
+    pathKeys = {},
+    queryParams = {},
+    versionString = null,
+    accessToken,
+    additionalConfig = {}
+  }: LIFinderRequestOptions): Promise<LIFinderResponse> {
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
+    const encodedQueryParamString = encodeQueryParamsForGetRequests({
+      q: finderName,
+      ...queryParams
+    });
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: RESTLI_METHODS.FINDER,
+      accessToken,
+      versionString,
+      additionalConfig
+    });
+
+    return await this.axiosInstance.request(requestConfig);
+  }
+
+  /**
+   * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
+   * criteria. This method will perform query tunneling if necessary.
+   *
+   * @example
+   * ```ts
+   * restliClient.batchFinder({
+   *   resourcePath: '/organizationAuthorizations',
+   *   finderName: 'authorizationActionsAndImpersonator',
+   *   finderCriteria: {
+   *     name: 'authorizationActions',
+   *     value: [
+   *       {
+   *         'OrganizationRoleAuthorizationAction': {
+   *           actionType: 'ADMINISTRATOR_READ'
+   *         }
+   *       },
+   *       {
+   *          'OrganizationContentAuthorizationAction': {
+   *           actionType: 'ORGANIC_SHARE_DELETE'
+   *         }
+   *       }
+   *     ]
+   *   },
+   *   accessToken: 'ABC123',
+   *   versionString: '202210'
+   * }).then(response => {
+   *   const allFinderResults = response.data.elements;
+   * });
+   * ```
+   */
+  async batchFinder({
+    resourcePath,
+    finderName,
+    finderCriteria,
+    pathKeys = {},
+    queryParams = {},
+    versionString = null,
+    accessToken,
+    additionalConfig = {}
+  }: LIBatchFinderRequestOptions): Promise<LIBatchFinderResponse> {
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
+    const encodedQueryParamString = encodeQueryParamsForGetRequests({
+      bq: finderName,
+      [finderCriteria.name]: finderCriteria.value,
+      ...queryParams
+    });
+
+    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
+      encodedQueryParamString,
+      urlPath,
+      originalRestliMethod: RESTLI_METHODS.BATCH_FINDER,
       accessToken,
       versionString,
       additionalConfig
@@ -445,7 +582,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.create({
-   *   resource: '/adAccountsV2',
+   *   resourcePath: '/adAccountsV2',
    *   entity: {
    *     name: 'Test Ad Account',
    *     type: 'BUSINESS',
@@ -458,21 +595,20 @@ export class RestliClient {
    * ```
    */
   async create({
-    resource,
+    resourcePath,
     entity,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LICreateRequestOptions): Promise<LICreateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     const requestConfig = _.merge(
       {
-        method: 'POST',
-        url: encodedQueryParamString
-          ? `${baseUrl}${resource}?${encodedQueryParamString}`
-          : `${baseUrl}${resource}`,
+        method: HTTP_METHODS.POST,
+        url: encodedQueryParamString ? `${urlPath}?${encodedQueryParamString}` : urlPath,
         data: entity,
         headers: getRestliRequestHeaders({
           restliMethodType: RESTLI_METHODS.CREATE,
@@ -497,7 +633,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.batchCreate({
-   *   resource: '/adCampaignGroups',
+   *   resourcePath: '/adCampaignGroups',
    *   entities: [
    *     {
    *       account: 'urn:li:sponsoredAccount:111',
@@ -518,21 +654,20 @@ export class RestliClient {
    * ```
    */
   async batchCreate({
-    resource,
+    resourcePath,
     entities,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchCreateRequestOptions): Promise<LIBatchCreateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode(queryParams);
     const requestConfig = _.merge(
       {
-        method: 'POST',
-        url: encodedQueryParamString
-          ? `${baseUrl}${resource}?${encodedQueryParamString}`
-          : `${baseUrl}${resource}`,
+        method: HTTP_METHODS.POST,
+        url: encodedQueryParamString ? `${urlPath}?${encodedQueryParamString}` : urlPath,
         data: {
           elements: entities
         },
@@ -563,8 +698,10 @@ export class RestliClient {
    * @example
    * ```ts
    * client.partialUpdate({
-   *   resource: '/adAccounts',
-   *   id: '123',
+   *   resourcePath: '/adAccounts/{id}',
+   *   pathKeys: {
+   *     id: 123
+   *   },
    *   patchSetObject: {
    *     name: 'TestAdAccountModified',
    *     reference: 'urn:li:organization:456'
@@ -577,19 +714,18 @@ export class RestliClient {
    * ```
    */
   async partialUpdate({
-    resource,
-    id = null,
+    resourcePath,
     patchSetObject,
     originalEntity,
     modifiedEntity,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIPartialUpdateRequestOptions): Promise<LIPartialUpdateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
     const encodedQueryParamString = paramEncode(queryParams);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
 
     let patchData;
     if (patchSetObject) {
@@ -628,7 +764,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.batchPartialUpdate({
-   *   resource: '/adCampaignGroups',
+   *   resourcePath: '/adCampaignGroups',
    *   ids: [123, 456],
    *   patchSetObjects: [
    *     { status: 'ACTIVE' },
@@ -647,17 +783,18 @@ export class RestliClient {
    * ```
    */
   async batchPartialUpdate({
-    resource,
+    resourcePath,
     ids,
     originalEntities,
     modifiedEntities,
     patchSetObjects,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchPartialUpdateRequestOptions): Promise<LIBatchPartialUpdateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
 
     if (patchSetObjects) {
       if (ids.length !== patchSetObjects.length) {
@@ -702,7 +839,7 @@ export class RestliClient {
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
+      urlPath,
       originalRestliMethod: RESTLI_METHODS.BATCH_PARTIAL_UPDATE,
       originalJSONRequestBody: {
         entities
@@ -722,10 +859,12 @@ export class RestliClient {
    * @example
    * ```ts
    * client.update({
-   *   resource: '/adAccountUsers',
-   *   id: {
-   *     account: 'urn:li:sponsoredAccount:123',
-   *     user: 'urn:li:person:foobar'
+   *   resourcePath: '/adAccountUsers/{accountUserKey}',
+   *   pathKeys: {
+   *     accountUserKey: {
+   *       account: 'urn:li:sponsoredAccount:123',
+   *       user: 'urn:li:person:foobar'
+   *     }
    *   },
    *   entity: {
    *     account: 'urn:li:sponsoredAccount:123',
@@ -740,16 +879,15 @@ export class RestliClient {
    * ```
    */
   async update({
-    resource,
-    id = null,
+    resourcePath,
     entity,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIUpdateRequestOptions): Promise<LIUpdateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
@@ -772,7 +910,7 @@ export class RestliClient {
    * @example
    * ```ts
    * client.batchUpdate({
-   *   resource: '/campaignConversions',
+   *   resourcePath: '/campaignConversions',
    *   ids: [
    *     { campaign: 'urn:li:sponsoredCampaign:123', conversion: 'urn:lla:llaPartnerConversion:456' },
    *     { campaign: 'urn:li:sponsoredCampaign:123', conversion: 'urn:lla:llaPartnerConversion:789' }
@@ -788,15 +926,16 @@ export class RestliClient {
    * ```
    */
   async batchUpdate({
-    resource,
+    resourcePath,
     ids,
     entities,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchUpdateRequestOptions): Promise<LIBatchUpdateResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode({
       ids,
       ...queryParams
@@ -809,7 +948,7 @@ export class RestliClient {
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithBody({
       encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
+      urlPath,
       originalRestliMethod: RESTLI_METHODS.BATCH_UPDATE,
       originalJSONRequestBody: {
         entities: entitiesObject
@@ -828,8 +967,10 @@ export class RestliClient {
    * @sample
    * ```ts
    * restliClient.delete({
-   *   resource: '/adAccounts',
-   *   id: 123,
+   *   resourcePath: '/adAccounts/{id}',
+   *   pathKeys: {
+   *     id: 123
+   *   },
    *   versionString: '202210',
    *   accessToken: 'ABC123'
    * }).then(response => {
@@ -838,15 +979,14 @@ export class RestliClient {
    * ```
    */
   async delete({
-    resource,
-    id = null,
+    resourcePath,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIDeleteRequestOptions): Promise<LIDeleteResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
-    const urlPath = id ? `${baseUrl}${resource}/${encode(id)}` : `${baseUrl}${resource}`;
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode(queryParams);
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
@@ -867,7 +1007,7 @@ export class RestliClient {
    * @sample
    * ```ts
    * restliClient.batchDelete({
-   *   resource: '/adAccounts',
+   *   resourcePath: '/adAccounts',
    *   ids: [123, 456],
    *   versionString: '202210',
    *   accessToken: 'ABC123'
@@ -877,14 +1017,15 @@ export class RestliClient {
    * ```
    */
   async batchDelete({
-    resource,
+    resourcePath,
     ids,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig = {}
   }: LIBatchDeleteRequestOptions): Promise<LIBatchDeleteResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode({
       ids,
       ...queryParams
@@ -892,114 +1033,8 @@ export class RestliClient {
 
     const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
       encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
+      urlPath,
       originalRestliMethod: RESTLI_METHODS.BATCH_DELETE,
-      accessToken,
-      versionString,
-      additionalConfig
-    });
-
-    return await this.axiosInstance.request(requestConfig);
-  }
-
-  /**
-   * Makes a Rest.li FINDER request to find entities by some specified criteria. This method
-   * will perform query tunneling if necessary.
-   *
-   * @example
-   * ```ts
-   * restliClient.finder({
-   *   resource: '/adAccounts',
-   *   finderName: 'search',
-   *   queryParams: {
-   *     search: {
-   *       status: {
-   *         values: ['DRAFT', 'ACTIVE', 'REMOVED']
-   *       }
-   *     }
-   *   },
-   *   accessToken: 'ABC123',
-   *   versionString: '202210'
-   * }).then(response => {
-   *   const elements = response.data.elements;
-   *   const total = response.data.paging.total;
-   * });
-   * ```
-   */
-  async finder({
-    resource,
-    finderName,
-    queryParams = {},
-    versionString = null,
-    accessToken,
-    additionalConfig = {}
-  }: LIFinderRequestOptions): Promise<LIFinderResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = encodeQueryParamsForGetRequests({
-      q: finderName,
-      ...queryParams
-    });
-
-    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
-      encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: RESTLI_METHODS.FINDER,
-      accessToken,
-      versionString,
-      additionalConfig
-    });
-
-    return await this.axiosInstance.request(requestConfig);
-  }
-
-  /**
-   * Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of
-   * criteria. This method will perform query tunneling if necessary.
-   *
-   * @example
-   * ```ts
-   * restliClient.batchFinder({
-   *   resource: '/organizationAuthorizations',
-   *   batchFinderName: 'authorizationActionsAndImpersonator',
-   *   queryParams: {
-   *     authorizationActions: [
-   *       {
-   *         'OrganizationRoleAuthorizationAction': {
-   *           actionType: 'ADMINISTRATOR_READ'
-   *         }
-   *       },
-   *       {
-   *          'OrganizationContentAuthorizationAction': {
-   *           actionType: 'ORGANIC_SHARE_DELETE'
-   *         }
-   *       }
-   *     ]
-   *   },
-   *   accessToken: 'ABC123',
-   *   versionString: '202210'
-   * }).then(response => {
-   *   const allFinderResults = response.data.elements;
-   * });
-   * ```
-   */
-  async batchFinder({
-    resource,
-    batchFinderName,
-    queryParams = {},
-    versionString = null,
-    accessToken,
-    additionalConfig = {}
-  }: LIBatchFinderRequestOptions): Promise<LIBatchFinderResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
-    const encodedQueryParamString = encodeQueryParamsForGetRequests({
-      bq: batchFinderName,
-      ...queryParams
-    });
-
-    const requestConfig = maybeApplyQueryTunnelingToRequestsWithoutBody({
-      encodedQueryParamString,
-      urlPath: `${baseUrl}${resource}`,
-      originalRestliMethod: RESTLI_METHODS.BATCH_FINDER,
       accessToken,
       versionString,
       additionalConfig
@@ -1026,22 +1061,23 @@ export class RestliClient {
    * ```
    */
   async action({
-    resource,
+    resourcePath,
     actionName,
     data = null,
+    pathKeys = {},
     queryParams = {},
     versionString = null,
     accessToken,
     additionalConfig
   }: LIActionRequestOptions): Promise<LIActionResponse> {
-    const baseUrl = getRestApiBaseUrl(versionString);
+    const urlPath = buildRestliUrl(resourcePath, pathKeys, versionString);
     const encodedQueryParamString = paramEncode({
       action: actionName,
       ...queryParams
     });
     const requestConfig = _.merge({
-      method: 'POST',
-      url: `${baseUrl}${resource}?${encodedQueryParamString}`,
+      method: HTTP_METHODS.POST,
+      url: `${urlPath}?${encodedQueryParamString}`,
       data,
       headers: getRestliRequestHeaders({
         restliMethodType: RESTLI_METHODS.ACTION,

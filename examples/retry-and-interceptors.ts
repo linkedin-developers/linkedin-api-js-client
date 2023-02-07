@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   /**
    * Configure a custom request interceptor
    */
-  restliClient.axiosInstance.interceptors.request.use(function(req) {
+  restliClient.axiosInstance.interceptors.request.use(function (req) {
     // @ts-expect-error
     if (req['axios-retry'].retryCount === 2) {
       // On the second retry, remove the invalid query parameter so request will be successful
@@ -36,19 +36,24 @@ async function main(): Promise<void> {
   /**
    * Configure a custom response interceptor.
    */
-  restliClient.axiosInstance.interceptors.response.use(function(res) {
-    console.log('Hit custom response interceptor.');
-    return res;
-  }, async function(error) {
-    /**
-     * Resetting the config headers is a necessary workaround for retrying the request correctly.
-     * See axios issue here: https://github.com/axios/axios/issues/5089
-     */
-    const config = error.config;
-    config.headers = JSON.parse(JSON.stringify(config.headers || {}));
-    console.log(`Hit custom error response interceptor. Retry count: ${config['axios-retry'].retryCount}`);
-    return await Promise.reject(error);
-  });
+  restliClient.axiosInstance.interceptors.response.use(
+    function (res) {
+      console.log('Hit custom response interceptor.');
+      return res;
+    },
+    async function (error) {
+      /**
+       * Resetting the config headers is a necessary workaround for retrying the request correctly.
+       * See axios issue here: https://github.com/axios/axios/issues/5089
+       */
+      const config = error.config;
+      config.headers = JSON.parse(JSON.stringify(config.headers || {}));
+      console.log(
+        `Hit custom error response interceptor. Retry count: ${config['axios-retry'].retryCount}`
+      );
+      return await Promise.reject(error);
+    }
+  );
 
   /**
    * Use the axios-retry library to configure retry condition, exponential retry
@@ -72,7 +77,7 @@ async function main(): Promise<void> {
    * request interceptors.
    */
   const response = await restliClient.get({
-    resource: '/me',
+    resourcePath: '/me',
     queryParams: {
       invalidParam: true
     },
@@ -81,8 +86,10 @@ async function main(): Promise<void> {
   console.log(response.data);
 }
 
-main().then(() => {
-  console.log('Completed');
-}).catch((error) => {
-  console.log(`Error encountered: ${error.message}`);
-});
+main()
+  .then(() => {
+    console.log('Completed');
+  })
+  .catch((error) => {
+    console.log(`Error encountered: ${error.message}`);
+  });
