@@ -85,7 +85,7 @@ const { RestliClient } = require('linkedin-api-client');
 const restliClient = new RestliClient();
 
 restliClient.get({
-  resource: '/me',
+  resourcePath: '/me',
   accessToken: <THREE_LEGGED_ACCESS_TOKEN>
 }).then(response => {
   const profile = response.data;
@@ -104,7 +104,7 @@ const { RestliClient } = require('linkedin-api-client');
 const restliClient = new RestliClient();
 
 restliClient.finder({
-  resource: '/adAccounts',
+  resourcePath: '/adAccounts',
   finderName: 'search',
   queryParams: {
     search: {
@@ -161,7 +161,8 @@ All methods of the API client require passing in a request options object, all o
 
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
-| `BaseRequestOptions.resource` | String | Yes | The API resource name, which should begin with a forward slash (e.g. "/adAccounts") |
+| `BaseRequestOptions.resourcePath` | String | Yes | <p>The resource path after the base URL, beginning with a forward slash. If the path contains keys, add curly-brace placeholders for the keys and specify the path key-value map in the `pathKeys` argument.</p><p>Examples:</p><ul><li>`resourcePath: "/me"`</li><li>`resourcePath: "/adAccounts/{id}"`</li><li>`resourcePath: "/socialActions/{actionUrn}/comments/{commentId}"`</li><li>`resourcePath: "/campaignConversions/{key}`</li></ul> |
+| `BaseRequestOptions.pathKeys` | Object | No | <p>If there are path keys that are part of the `resourcePath` argument, the key placeholders must be specified in the provided `pathKeys` map. The path key values can be strings, numbers, or objects, and these will be properly encoded.</p><p>Examples:</p><ul><li>`pathKeys: {"id": 123"}`</li><li>`pathKeys: {"actionUrn":"urn:li:share:123","commentId":987`}</li><li>`pathKeys: {"key": {"campaign": "urn:li:sponsoredCampaign:123", "conversion": "urn:lla:llaPartnerConversion:456"}}`</li></ul> |
 | `BaseRequestOptions.queryParams` | Object | No | A map of query parameters. The parameter keys and values will be correctly encoded by this method, so these should not be encoded. |
 | `BaseRequestOptions.accessToken` | String | Yes | The access token that should provide the application access to the specified API |
 | `BaseRequestOptions.versionString` | String | No | An optional version string of the format "YYYYMM" or "YYYYMM.RR". If specified, the version header will be passed and the request will use the versioned APIs base URL |
@@ -180,7 +181,6 @@ Makes a Rest.li GET request to fetch the specified entity on a resource. This me
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.id` | String \|\| Number \|\| Object | No | The id or key of the entity to fetch. For simple resources, this is not specified. |
 
 **Resolved Response Object:**
 
@@ -192,8 +192,10 @@ Makes a Rest.li GET request to fetch the specified entity on a resource. This me
 **Example:**
 ```js
 restliClient.get({
-  resource: '/adAccounts',
-  id: 123,
+  resourcePath: '/adAccounts/{id}',
+  pathKeys: {
+    id: 123
+  },
   queryParams: {
     fields: 'id,name'
   },
@@ -227,7 +229,7 @@ Makes a Rest.li BATCH_GET request to fetch multiple entities on a resource. This
 **Example:**
 ```js
 restliClient.batchGet({
-  resource: '/adCampaignGroups',
+  resourcePath: '/adCampaignGroups',
   id: [123, 456, 789],
   accessToken: MY_ACCESS_TOKEN,
   versionString: '202210'
@@ -257,7 +259,7 @@ Makes a Rest.li GET_ALL request to fetch all entities on a resource.
 **Example:**
 ```js
 restliClient.getAll({
-  resource: '/fieldsOfStudy',
+  resourcePath: '/fieldsOfStudy',
   queryParams: {
     start: 0,
     count: 15
@@ -292,7 +294,7 @@ Makes a Rest.li FINDER request to find entities by some specified criteria.
 **Example:**
 ```js
 restliClient.finder({
-  resource: '/adAccounts',
+  resourcePath: '/adAccounts',
   finderName: 'search'
   queryParams: {
     search: {
@@ -322,7 +324,8 @@ Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criter
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.batchFinderName` | String | Yes | The Rest.li batch finder name. This will be included in the request query parameters. |
+| `params.finderName` | String | Yes | The Rest.li batch finder name. This will be included in the request query parameters. |
+| `params.finderCriteria` | Object | Yes | An object with `name` and `value` properties, representing the required batch finder criteria information. `name` should be the batch finder criteria parameter name, and `value` should be a list of finder param objects. The batch finder results are correspondingly ordered according to this list. The batch finder criteria will be encoded and added to the request query parameters. |
 
 **Resolved Response Object:**
 
@@ -340,9 +343,10 @@ Makes a Rest.li BATCH_FINDER request to find entities by multiple sets of criter
 ```js
 restliClient.batchFinder({
   resource: '/organizationAuthorizations',
-  batchFinderName: 'authorizationActionsAndImpersonator'
-  queryParams: {
-    authorizationActions: [
+  finderName: 'authorizationActionsAndImpersonator'
+  finderCriteria: {
+    name: 'authorizationActions',
+    value: [
       {
         'OrganizationRoleAuthorizationAction': {
           actionType: 'ADMINISTRATOR_READ'
@@ -383,7 +387,7 @@ Makes a Rest.li CREATE request to create a new entity on the resource.
 **Example:**
 ```js
 restliClient.create({
-  resource: '/adAccountsV2',
+  resourcePath: '/adAccountsV2',
   entity: {
     name: 'Test Ad Account',
     type: 'BUSINESS',
@@ -419,7 +423,7 @@ Makes a Rest.li BATCH_CREATE request to create multiple entities in a single cal
 **Example:**
 ```js
 restliClient.batchCreate({
-  resource: '/adCampaignGroups',
+  resourcePath: '/adCampaignGroups',
   entities: [
     {
       account: 'urn:li:sponsoredAccount:111',
@@ -448,7 +452,6 @@ Makes a Rest.li UPDATE request to update an entity (overwriting the entire entit
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.id` | String \|\| Number \|\| Object | Yes | The id or key of the entity to update. For simple resources, this is not specified. |
 | `params.entity` | Object | Yes | The value of the entity with updated values. |
 
 **Resolved Response Object:**
@@ -460,10 +463,12 @@ Makes a Rest.li UPDATE request to update an entity (overwriting the entire entit
 **Example:**
 ```js
 restliClient.update({
-  resource: '/adAccountUsers',
-  id: {
-    account: 'urn:li:sponsoredAccount:123',
-    user: 'urn:li:person:foobar'
+  resourcePath: '/adAccountUsers/{key}',
+  pathKeys: {
+    key: {
+      account: 'urn:li:sponsoredAccount:123',
+      user: 'urn:li:person:foobar'
+    }
   },
   entity: {
     account: 'urn:li:sponsoredAccount:123',
@@ -498,7 +503,7 @@ Makes a Rest.li BATCH_UPDATE request to update multiple entities in a single cal
 **Example:**
 ```js
 restliClient.batchUpdate({
-  resource: '/campaignConversions',
+  resourcePath: '/campaignConversions',
   ids: [
     { campaign: 'urn:li:sponsoredCampaign:123', conversion: 'urn:lla:llaPartnerConversion:456' },
     { campaign: 'urn:li:sponsoredCampaign:123', conversion: 'urn:lla:llaPartnerConversion:789' }
@@ -524,7 +529,6 @@ When an entity has nested fields that can be modified, passing in the original a
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.id` | String \|\| Number \|\| Object | No | The id or key of the entity to update. For simple resources, this is not specified. |
 | `params.patchSetObject` | Object | No | The value of the entity with only the modified fields present. If specified, this will be directly sent as the patch object. |
 | `params.originalEntity` | Object | No | The value of the original entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `modifiedEntity` to compute the patch object. |
 | `params.modifiedEntity` | Object | No | The value of the modified entity. If specified and `patchSetObject` is not provided, this will be used in conjunction with `originalEntity` to compute the patch object. |
@@ -538,8 +542,10 @@ When an entity has nested fields that can be modified, passing in the original a
 **Example:**
 ```js
 restliClient.partialUpdate({
-  resource: '/adAccounts',
-  id: 123,
+  resourcePath: '/adAccounts/{id}',
+  pathKeys: {
+    id: 123
+  },
   patchSetObject: {
     name: 'TestAdAccountModified',
     reference: 'urn:li:organization:456'
@@ -576,7 +582,7 @@ Makes a Rest.li BATCH_PARTIAL_UPDATE request to partially update multiple entite
 **Example:**
 ```js
 restliClient.batchPartialUpdate({
-  resource: '/adCampaignGroups',
+  resourcePath: '/adCampaignGroups',
   id: [123, 456],
   patchSetObjects: [
     { status: 'ACTIVE' },
@@ -603,7 +609,6 @@ Makes a Rest.li DELETE request to delete an entity.
 | Parameter | Type | Required? | Description |
 |---|---|---|---|
 | `params` | Object extends [BaseRequestOptions](#base-request-options) | Yes | Standard request options |
-| `params.id` | String \|\| Number \|\| Object | No | The id or key of the entity to delete. For simple resources, this is not specified. |
 
 **Resolved Response Object:**
 
@@ -614,8 +619,10 @@ Makes a Rest.li DELETE request to delete an entity.
 **Example:**
 ```js
 restliClient.delete({
-  resource: '/adAccounts',
-  id: 123,
+  resourcePath: '/adAccounts/{id}',
+  pathKeys: {
+    id: 123
+  },
   versionString: '202210',
   accessToken: MY_ACCESS_TOKEN
 }).then(response => {
@@ -645,7 +652,7 @@ Makes a Rest.li BATCH_DELETE request to delete multiple entities at once.
 **Example:**
 ```js
 restliClient.batchDelete({
-  resource: '/adAccounts',
+  resourcePath: '/adAccounts',
   ids: [123, 456],
   versionString: '202210',
   accessToken: MY_ACCESS_TOKEN
@@ -676,7 +683,7 @@ Makes a Rest.li ACTION request to perform an action on a specified resource.
 **Example:**
 ```js
 restliClient.action({
-  resource: '/testResource',
+  resourcePath: '/testResource',
   actionName: 'doSomething',
   accessToken: MY_ACCESS_TOKEN
 }).then(response => {

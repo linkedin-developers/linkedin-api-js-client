@@ -11,6 +11,7 @@ dotenv.config();
 
 const MDP_VERSION = '202212';
 const AD_ACCOUNTS_RESOURCE = '/adAccounts';
+const AD_ACCOUNTS_ENTITY_RESOURCE = '/adAccounts/{id}';
 
 async function main(): Promise<void> {
   const restliClient = new RestliClient();
@@ -21,7 +22,7 @@ async function main(): Promise<void> {
    * Create a test ad account
    */
   const createResponse = await restliClient.create({
-    resource: AD_ACCOUNTS_RESOURCE,
+    resourcePath: AD_ACCOUNTS_RESOURCE,
     entity: {
       name: 'Test Ad Account',
       reference: 'urn:li:organization:123',
@@ -33,38 +34,42 @@ async function main(): Promise<void> {
     versionString: MDP_VERSION
   });
   const adAccountId = createResponse.createdEntityId as string;
-  console.log(`Successfully created ad account: ${adAccountId}`);
+  console.log(`Successfully created ad account: ${adAccountId}\n`);
 
   /**
    * Get the created ad account
    */
   const getResponse = await restliClient.get({
-    resource: AD_ACCOUNTS_RESOURCE,
-    id: adAccountId,
+    resourcePath: AD_ACCOUNTS_ENTITY_RESOURCE,
+    pathKeys: {
+      id: adAccountId
+    },
     accessToken,
     versionString: MDP_VERSION
   });
-  console.log(`Successfully fetched ad acccount: ${JSON.stringify(getResponse.data, null, 2)}`);
+  console.log(`Successfully fetched ad acccount: ${JSON.stringify(getResponse.data, null, 2)}\n`);
 
   /**
    * Partial update on ad account
    */
   await restliClient.partialUpdate({
-    resource: AD_ACCOUNTS_RESOURCE,
-    id: adAccountId,
+    resourcePath: AD_ACCOUNTS_ENTITY_RESOURCE,
+    pathKeys: {
+      id: adAccountId
+    },
     patchSetObject: {
       name: 'Modified Test Ad Account'
     },
     accessToken,
     versionString: MDP_VERSION
   });
-  console.log('Successfully did partial update of ad account');
+  console.log('Successfully did partial update of ad account\n');
 
   /**
    * Find all ad accounts according to a specified search criteria
    */
   const finderResponse = await restliClient.finder({
-    resource: AD_ACCOUNTS_RESOURCE,
+    resourcePath: AD_ACCOUNTS_RESOURCE,
     finderName: 'search',
     queryParams: {
       search: {
@@ -80,22 +85,28 @@ async function main(): Promise<void> {
     accessToken,
     versionString: MDP_VERSION
   });
-  console.log(`Successfully searched ad accounts: ${JSON.stringify(finderResponse.data.elements, null, 2)}`);
+  console.log(
+    `Successfully searched ad accounts: ${JSON.stringify(finderResponse.data.elements, null, 2)}\n`
+  );
 
   /**
    * Delete ad account
    */
   await restliClient.delete({
-    resource: AD_ACCOUNTS_RESOURCE,
-    id: adAccountId,
+    resourcePath: AD_ACCOUNTS_ENTITY_RESOURCE,
+    pathKeys: {
+      id: adAccountId
+    },
     accessToken,
     versionString: MDP_VERSION
   });
-  console.log('Successfully deleted ad account');
+  console.log('Successfully deleted ad account\n');
 }
 
-main().then(() => {
-  console.log('Completed');
-}).catch((error) => {
-  console.log(`Error encountered: ${error.message}`);
-});
+main()
+  .then(() => {
+    console.log('Completed');
+  })
+  .catch((error) => {
+    console.log(`Error encountered: ${error.message}`);
+  });

@@ -18,7 +18,7 @@ async function main(): Promise<void> {
    * Basic usage
    */
   let response = await restliClient.get({
-    resource: '/me',
+    resourcePath: '/me',
     accessToken
   });
   console.log('Basic usage:', response.data);
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
    * With field projection to limit fields returned
    */
   response = await restliClient.get({
-    resource: '/me',
+    resourcePath: '/me',
     queryParams: {
       fields: 'id,firstName,lastName'
     },
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
    * With decoration of displayImage
    */
   response = await restliClient.get({
-    resource: '/me',
+    resourcePath: '/me',
     queryParams: {
       projection: '(id,firstName,lastName,profilePicture(displayImage~:playableStreams))'
     },
@@ -48,8 +48,10 @@ async function main(): Promise<void> {
   console.log('With decoration:', response.data);
 }
 
-main().then(() => {
-  console.log('Completed');
-}).catch((error) => {
-  console.log(`Error encountered: ${error.message}`);
-});
+main()
+  .then(() => {
+    console.log('Completed');
+  })
+  .catch((error) => {
+    console.log(`Error encountered: ${error.message}`);
+  });

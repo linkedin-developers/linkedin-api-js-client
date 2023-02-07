@@ -25,18 +25,24 @@ async function main(): Promise<void> {
    * Randomly generate campaign group ids and send in a BATCH_GET request (we expect all 404 responses).
    * The client should automatically do query tunneling and perform a POST request.
    */
-  const campaignGroupIds = Array.from({ length: NUMBER_OF_ENTITIES }).map(_ => Math.floor(Math.random() * 99999999999999));
+  const campaignGroupIds = Array.from({ length: NUMBER_OF_ENTITIES }).map((_) =>
+    Math.floor(Math.random() * 99999999999999)
+  );
   const batchGetResponse = await restliClient.batchGet({
-    resource: AD_CAMPAIGN_GROUPS_RESOURCE,
+    resourcePath: AD_CAMPAIGN_GROUPS_RESOURCE,
     ids: campaignGroupIds,
     accessToken,
     versionString: MDP_VERSION
   });
-  console.log(`Successfully made a BATCH_GET request on /adCampaignGroups. HTTP Method: ${batchGetResponse.config.method}]`);
+  console.log(
+    `Successfully made a BATCH_GET request on /adCampaignGroups. HTTP Method: ${batchGetResponse.config.method}]`
+  );
 }
 
-main().then(() => {
-  console.log('Completed');
-}).catch((error) => {
-  console.log(`Error encountered: ${error.message}`);
-});
+main()
+  .then(() => {
+    console.log('Completed');
+  })
+  .catch((error) => {
+    console.log(`Error encountered: ${error.message}`);
+  });

@@ -42,8 +42,10 @@ describe('RestliClient', () => {
       description: 'Get request for a non-versioned collection resource',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/adAccounts',
-        id: 123,
+        resourcePath: '/adAccounts/{id}',
+        pathKeys: {
+          id: 123
+        },
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -59,7 +61,7 @@ describe('RestliClient', () => {
       description: 'Get request for a simple resource',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/me',
+        resourcePath: '/me',
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -75,8 +77,10 @@ describe('RestliClient', () => {
       description: 'Get request for versioned collection resource',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/adAccounts',
-        id: 123,
+        resourcePath: '/adAccounts/{id}',
+        pathKeys: {
+          id: 123
+        },
         versionString: '202209',
         accessToken: TEST_BEARER_TOKEN
       },
@@ -96,8 +100,10 @@ describe('RestliClient', () => {
       description: 'Get request with complex key and query parameters',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/accountRoles',
-        id: { member: 'urn:li:person:123', account: 'urn:li:account:234' },
+        resourcePath: '/accountRoles/{key}',
+        pathKeys: {
+          key: { member: 'urn:li:person:123', account: 'urn:li:account:234' }
+        },
         queryParams: {
           param1: 'foobar',
           param2: { prop1: 'abc', prop2: 'def' }
@@ -117,7 +123,7 @@ describe('RestliClient', () => {
       description: 'Get request with field projections',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/me',
+        resourcePath: '/me',
         queryParams: {
           fields: 'id,firstName,lastName',
           otherParam: [1, 2, 3]
@@ -137,8 +143,10 @@ describe('RestliClient', () => {
       description: 'Get request with error response',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/adAccounts',
-        id: 123,
+        resourcePath: '/adAccounts/{id}',
+        pathKeys: {
+          id: 123
+        },
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -159,8 +167,10 @@ describe('RestliClient', () => {
       description: 'Get request with query tunneling',
       inputRequestRestliMethod: 'GET',
       inputRequestOptions: {
-        resource: '/adAccounts',
-        id: 123,
+        resourcePath: '/adAccounts/{id}',
+        pathKeys: {
+          id: 123
+        },
         queryParams: {
           longParam: LONG_STRING
         },
@@ -189,7 +199,7 @@ describe('RestliClient', () => {
       description: 'Batch get request for a non-versioned collection resource',
       inputRequestRestliMethod: 'BATCH_GET',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: [123, 456, 789],
         accessToken: TEST_BEARER_TOKEN
       },
@@ -212,7 +222,7 @@ describe('RestliClient', () => {
       description: 'Batch get request with complex key and query parameters',
       inputRequestRestliMethod: 'BATCH_GET',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: [
           { member: 'urn:li:person:123', account: 'urn:li:account:234' },
           { member: 'urn:li:person:234', account: 'urn:li:account:345' },
@@ -244,7 +254,7 @@ describe('RestliClient', () => {
       description: 'Batch get request with error response',
       inputRequestRestliMethod: 'BATCH_GET',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: [123, 456, 789],
         accessToken: TEST_BEARER_TOKEN
       },
@@ -266,7 +276,7 @@ describe('RestliClient', () => {
       description: 'Batch get request with query tunneling',
       inputRequestRestliMethod: 'BATCH_GET',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: [123, 456, 789],
         queryParams: {
           longParam: LONG_STRING
@@ -302,8 +312,7 @@ describe('RestliClient', () => {
       description: 'Get all request for a non-versioned collection resource',
       inputRequestRestliMethod: 'GET_ALL',
       inputRequestOptions: {
-        resource: '/testResource',
-
+        resourcePath: '/testResource',
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -325,7 +334,7 @@ describe('RestliClient', () => {
       description: 'Create request for a non-versioned resource',
       inputRequestRestliMethod: 'CREATE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         entity: {
           name: 'TestApp1'
         },
@@ -354,7 +363,7 @@ describe('RestliClient', () => {
       description: 'Batch create request for a non-versioned resource',
       inputRequestRestliMethod: 'BATCH_CREATE',
       inputRequestOptions: {
-        resource: '/adCampaignGroups',
+        resourcePath: '/adCampaignGroups',
         entities: [
           {
             account: 'urn:li:sponsoredAccount:111',
@@ -398,8 +407,10 @@ describe('RestliClient', () => {
       description: 'Partial update using original/modified entity',
       inputRequestRestliMethod: 'PARTIAL_UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
-        id: 123,
+        resourcePath: '/testResource/{id}',
+        pathKeys: {
+          id: 123
+        },
         originalEntity: {
           name: 'TestApp1',
           organization: 'urn:li:organization:123',
@@ -433,8 +444,10 @@ describe('RestliClient', () => {
       description: 'Partial update using patchSetObject',
       inputRequestRestliMethod: 'PARTIAL_UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
-        id: 123,
+        resourcePath: '/testResource/{id}',
+        pathKeys: {
+          id: 123
+        },
         patchSetObject: {
           organization: 'urn:li:organization:123',
           description: 'foobar'
@@ -466,7 +479,7 @@ describe('RestliClient', () => {
       description: 'Batch partial update using original/modified entities',
       inputRequestRestliMethod: 'BATCH_PARTIAL_UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: ['urn:li:person:123', 'urn:li:person:456'],
         originalEntities: [
           {
@@ -530,7 +543,7 @@ describe('RestliClient', () => {
       description: 'Batch partial update using patchSetObjects',
       inputRequestRestliMethod: 'BATCH_PARTIAL_UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: ['urn:li:person:123', 'urn:li:person:456'],
         patchSetObjects: [
           {
@@ -584,7 +597,7 @@ describe('RestliClient', () => {
       description: 'Update a simple non-versioned resource',
       inputRequestRestliMethod: 'UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         entity: {
           name: 'Steven',
           description: 'foobar'
@@ -608,10 +621,12 @@ describe('RestliClient', () => {
       description: 'Update an entity on an versioned, association resource',
       inputRequestRestliMethod: 'UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
-        id: {
-          application: 'urn:li:developerApplication:123',
-          member: 'urn:li:member:456'
+        resourcePath: '/testResource/{key}',
+        pathKeys: {
+          key: {
+            application: 'urn:li:developerApplication:123',
+            member: 'urn:li:member:456'
+          }
         },
         entity: {
           name: 'Steven',
@@ -644,7 +659,7 @@ describe('RestliClient', () => {
       description: 'Batch update on versioned resource',
       inputRequestRestliMethod: 'BATCH_UPDATE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: [
           {
             application: 'urn:li:developerApplication:123',
@@ -696,7 +711,7 @@ describe('RestliClient', () => {
       description: 'Delete on a simple resource',
       inputRequestRestliMethod: 'DELETE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -712,8 +727,10 @@ describe('RestliClient', () => {
       description: 'Delete on a collection resource',
       inputRequestRestliMethod: 'DELETE',
       inputRequestOptions: {
-        resource: '/testResource',
-        id: 123,
+        resourcePath: '/testResource/{id}',
+        pathKeys: {
+          id: 123
+        },
         accessToken: TEST_BEARER_TOKEN
       },
       inputResponse: {
@@ -733,7 +750,7 @@ describe('RestliClient', () => {
       description: 'Batch delete on a non-versioned resource',
       inputRequestRestliMethod: 'BATCH_DELETE',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         ids: ['urn:li:member:123', 'urn:li:member:456'],
         accessToken: TEST_BEARER_TOKEN
       },
@@ -756,7 +773,7 @@ describe('RestliClient', () => {
       description: 'Finder on a non-versioned resource',
       inputRequestRestliMethod: 'FINDER',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         finderName: 'search',
         queryParams: {
           search: {
@@ -786,10 +803,11 @@ describe('RestliClient', () => {
       description: 'Batch finder on a non-versioned resource',
       inputRequestRestliMethod: 'BATCH_FINDER',
       inputRequestOptions: {
-        resource: '/testResource',
-        batchFinderName: 'authActions',
-        queryParams: {
-          authActionsCriteria: [
+        resourcePath: '/testResource',
+        finderName: 'authActions',
+        finderCriteria: {
+          name: 'authActionsCriteria',
+          value: [
             {
               OrgRoleAuthAction: {
                 actionType: 'ADMIN_READ'
@@ -823,7 +841,7 @@ describe('RestliClient', () => {
       description: 'Action on a non-versioned resource',
       inputRequestRestliMethod: 'ACTION',
       inputRequestOptions: {
-        resource: '/testResource',
+        resourcePath: '/testResource',
         actionName: 'doSomething',
         data: {
           additionalParam: 123
@@ -908,7 +926,7 @@ describe('RestliClient', () => {
 
     // Test initial state where logging is disabled
     await restliClient.get({
-      resource: '/test',
+      resourcePath: '/test',
       accessToken: 'ABC123'
     });
 
@@ -922,7 +940,7 @@ describe('RestliClient', () => {
     restliClient.setDebugParams({ enabled: true, logSuccessResponses: true });
 
     await restliClient.get({
-      resource: '/test',
+      resourcePath: '/test',
       accessToken: 'ABC123'
     });
 
@@ -936,7 +954,7 @@ describe('RestliClient', () => {
 
     try {
       await restliClient.get({
-        resource: '/test',
+        resourcePath: '/test',
         accessToken: 'ABC123'
       });
       fail('RestliClient should have thrown an error.');
