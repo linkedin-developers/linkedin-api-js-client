@@ -1,6 +1,6 @@
 {
   "name": "linkedin-api-client",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Official JavaScript client library for LinkedIn APIs",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
