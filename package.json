@@ -14,6 +14,7 @@
     "build": "npm run clean && tsc --project tsconfig.build.json",
     "doc": "typedoc",
     "prepare": "husky install",
+    "prepublishOnly": "npm ci && npm run test && npm run build",
     "release": "release-it"
   },
   "author": "LinkedIn",
