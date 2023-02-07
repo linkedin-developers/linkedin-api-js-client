@@ -1,3 +1,5 @@
+# LinkedIn API JavaScript Client
+
 ## Overview
 
 This library provides a thin JavaScript client for making requests to LinkedIn APIs, utilizing the [Axios](https://axios-http.com/docs/intro) HTTP client library and written in TypeScript. LinkedIn's APIs are built on the [Rest.li](https://linkedin.github.io/rest.li/) framework with additional LinkedIn-specific constraints, which results in a robust yet complex protocol that can be challenging to implement correctly.

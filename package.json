@@ -15,7 +15,7 @@
     "doc": "typedoc",
     "prepare": "husky install",
     "prepublishOnly": "npm ci && npm run test && npm run build",
-    "release": "release-it"
+    "release": "dotenv release-it"
   },
   "author": "LinkedIn",
   "repository": {
