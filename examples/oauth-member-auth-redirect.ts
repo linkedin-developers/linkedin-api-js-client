@@ -45,7 +45,7 @@ restliClient.setDebugParams({ enabled: true });
 app.get('/', (_req, res) => {
   if (!accessToken) {
     // If no access token, have member authorize again
-    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile', 'rw_ads']));
+    res.redirect(authClient.generateMemberAuthorizationUrl(['r_liteprofile']));
   } else {
     // Fetch profile details
     restliClient
