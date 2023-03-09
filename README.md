@@ -96,7 +96,7 @@ restliClient.get({
 
 ### Finder Request Example
 
-Here is a more non-trivial example to [find ad accounts](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-accounts?#search-for-accounts) by some search critiera. This requires a 3-legged access token with the "r_ads" scope, which is included with the Marketing Developer Platform API product.
+Here is a more non-trivial example to [find ad accounts](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/account-structure/create-and-manage-accounts?#search-for-accounts) by some search critiera. This requires a 3-legged access token with the "r_ads" scope, which is included with the Advertising APIs product.
 
 We provide the value of the "search" query parameter object, and the client will handle the correct URL-encoding. This is a versioned API call, so we provide the version string in the "YYYYMM" format.
 

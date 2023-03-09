@@ -14,3 +14,14 @@ This directory contains examples showing how to use the LinkedIn API JavaScript 
   OAUTH2_REDIRECT_URL="your_app_oauth2_redirect_url"
   ```
 4. Execute the desired example script: `npx ts-node {script filename}`. For example: `npx ts-node get-profile.ts`
+
+### Example Notes
+
+| Example filename | Description |
+|---|---|
+| `oauth-member-auth-redirect.ts` | Demonstrates the member oauth redirect flow (authorization code flow) to obtain a 3-legged access token. |
+| `get-profile.ts` | Uses Sign In With LinkedIn v1 to fetch member profile. Also demonstrates use of field projections and decoration. |
+| `create-posts.ts` | Uses Sign In With LinkedIn and Share on LinkedIn to create posts. |
+| `crud-ad-accounts.ts` | Performs create, get, finder, partial update, and delete requests on ad accounts. |
+| `batch-get-campaign-groups-query-tunneling.ts` | Demonstrates a request that requires query tunneling, which is performed automatically by the client. |
+| `retry-and-interceptors.ts` | Adds retry logic and response interceptors to the client. |

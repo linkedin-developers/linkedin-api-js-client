@@ -3,7 +3,7 @@
  * query tunneling.
  *
  * The 3-legged member access token should include the 'r_ads' scope, which
- * is part of the Marketing Developer Platform API product.
+ * is part of the Advertising APIs product.
  */
 
 import { RestliClient } from 'linkedin-api-client';
@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MDP_VERSION = '202212';
+const API_VERSION = '202212';
 const AD_CAMPAIGN_GROUPS_RESOURCE = '/adCampaignGroups';
 // Set a large number of entities to fetch to require query tunneling
 const NUMBER_OF_ENTITIES = 300;
@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     resourcePath: AD_CAMPAIGN_GROUPS_RESOURCE,
     ids: campaignGroupIds,
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   console.log(
     `Successfully made a BATCH_GET request on /adCampaignGroups. HTTP Method: ${batchGetResponse.config.method}]`
