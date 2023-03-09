@@ -1,7 +1,7 @@
 /**
  * Example calls to perform CRUD and finder operations on ad accounts using versioned APIs.
  * The 3-legged member access token should include the 'rw_ads' scope, which
- * is part of the Marketing Developer Platform API product.
+ * is part of the Advertising APIs product.
  */
 
 import { RestliClient } from 'linkedin-api-client';
@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MDP_VERSION = '202212';
+const API_VERSION = '202212';
 const AD_ACCOUNTS_RESOURCE = '/adAccounts';
 const AD_ACCOUNTS_ENTITY_RESOURCE = '/adAccounts/{id}';
 
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
       test: true
     },
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   const adAccountId = createResponse.createdEntityId as string;
   console.log(`Successfully created ad account: ${adAccountId}\n`);
@@ -45,7 +45,7 @@ async function main(): Promise<void> {
       id: adAccountId
     },
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   console.log(`Successfully fetched ad acccount: ${JSON.stringify(getResponse.data, null, 2)}\n`);
 
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
       name: 'Modified Test Ad Account'
     },
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   console.log('Successfully did partial update of ad account\n');
 
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
       }
     },
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   console.log(
     `Successfully searched ad accounts: ${JSON.stringify(finderResponse.data.elements, null, 2)}\n`
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
       id: adAccountId
     },
     accessToken,
-    versionString: MDP_VERSION
+    versionString: API_VERSION
   });
   console.log('Successfully deleted ad account\n');
 }
