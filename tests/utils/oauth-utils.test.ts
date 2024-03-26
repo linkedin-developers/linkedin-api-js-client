@@ -6,10 +6,10 @@ describe('oauth-utils', () => {
       generateMemberAuthorizationUrl({
         clientId: 'abc123',
         redirectUrl: 'https://www.linkedin.com/developers',
-        scopes: ['r_liteprofile']
+        scopes: ['profile']
       })
     ).toBe(
-      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=r_liteprofile'
+      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=profile'
     );
   });
 
@@ -18,10 +18,10 @@ describe('oauth-utils', () => {
       generateMemberAuthorizationUrl({
         clientId: 'abc123',
         redirectUrl: 'https://www.linkedin.com/developers',
-        scopes: ['r_liteprofile', 'r_ads', 'r_organization']
+        scopes: ['profile', 'r_ads', 'r_organization']
       })
     ).toBe(
-      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=r_liteprofile,r_ads,r_organization'
+      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=profile,r_ads,r_organization'
     );
   });
 
@@ -30,11 +30,11 @@ describe('oauth-utils', () => {
       generateMemberAuthorizationUrl({
         clientId: 'abc123',
         redirectUrl: 'https://www.linkedin.com/developers',
-        scopes: ['r_liteprofile'],
+        scopes: ['profile'],
         state: 'foobar'
       })
     ).toBe(
-      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=r_liteprofile&state=foobar'
+      'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=abc123&redirect_uri=https://www.linkedin.com/developers&scope=profile&state=foobar'
     );
   });
 
