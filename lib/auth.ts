@@ -201,7 +201,7 @@ export class AuthClient {
     /** A 2-legged, 3-legged or Enterprise access token. */
     accessToken: string
   ): Promise<IntrospectTokenResponse> {
-    return await axios.request({
+    const response = await axios.request({
       method: HTTP_METHODS.POST,
       url: `${OAUTH_BASE_URL}/introspectToken`,
       data: {
@@ -213,5 +213,6 @@ export class AuthClient {
         [HEADERS.CONTENT_TYPE]: CONTENT_TYPE.URL_ENCODED
       }
     });
+    return response.data;
   }
 }
